@@ -11,12 +11,15 @@ class Player
 public:
 	Player();
 	~Player();
+	void SetName(string);
+	string& GetName();
+	void SetTeam(char);
+	char GetTeam();
 	void Turn(Field &field);
 
 private:
-	string name;
-	int turn; //1 or 2
-	char team; //w - white, b - black
+	string m_name;
+	char m_team; //w - white, b - black
 
 };
 
