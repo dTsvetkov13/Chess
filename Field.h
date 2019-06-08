@@ -2,13 +2,14 @@
 #include <iostream>
 #include "Figure.h"
 #include <fstream>
+#include <vector>
 
 static std::pair<int, int> anPasan;
 
 class Field
 {
 private:
-	Figure* m_field[8][8];
+	std::vector<std::vector<Figure*> > m_field;
 public:
 	Field();
 	~Field();

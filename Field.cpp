@@ -10,6 +10,9 @@
 
 Field::Field()
 {
+	m_field.resize(8);
+	for (int i = 0; i < 8; i++) m_field[i].resize(8);
+
 	Rook rook;
 	Knight knight;
 	Bishop bishop;
@@ -83,16 +86,24 @@ Field& Field::Instance()
 
 Figure* Field::getFigure(char *x, int y)
 {
+	if ((y - 1) < 0 || (y - 1) >= 8 || (tolower(*x) - 'a') < 0 || (tolower(*x) - 'a') >= 8)
+		return nullptr;
+
 	return m_field[y - 1][(tolower(*x) - 'a')];
 }
 
 Figure* Field::getFigure(int x, int y)
 {
+	if ((y - 1) < 0 || (y - 1) >= 8 || (x - 1) < 0 || (x - 1) >= 8)
+		return nullptr;
 	return m_field[y - 1][x-1];
 }
 
 bool Field::isFigure(char *x, int y)
 {
+	if ((y - 1) < 0 || (y - 1) >= 8 || (tolower(*x) - 'a') < 0 || (tolower(*x) - 'a') >= 8)
+		return false;
+
 	if (m_field[y - 1][(tolower(*x) - 'a')] != nullptr)
 	{
 		return true;
@@ -102,6 +113,9 @@ bool Field::isFigure(char *x, int y)
 
 bool Field::isFigure(int x, int y)
 {
+	if ((y - 1) < 0 || (y - 1) >= 8 || (x - 1) < 0 || (x - 1) >= 8)
+		return false;
+
 	if (m_field[y - 1][x - 1] != nullptr)
 	{
 		return true;
