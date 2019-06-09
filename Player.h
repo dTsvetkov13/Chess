@@ -15,11 +15,10 @@ public:
 	string& GetName();
 	void SetTeam(char);
 	char GetTeam();
-	void Turn(Field &field);
+	bool Turn();
 
 private:
 	string m_name;
 	char m_team; //w - white, b - black
-
 };
 

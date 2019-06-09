@@ -20,7 +20,8 @@ bool King::VerticalAndHorizontal(int x, int y)
 			if (Field::Instance().getFigure(i, y)->GetFirstLetter() == 'r'
 				|| Field::Instance().getFigure(i, y)->GetFirstLetter() == 'Q')
 			{
-				return true;
+				figuresChessing++;
+				break;
 			}
 		}
 
@@ -37,7 +38,8 @@ bool King::VerticalAndHorizontal(int x, int y)
 			if (Field::Instance().getFigure(i, y)->GetFirstLetter() == 'r'
 				|| Field::Instance().getFigure(i, y)->GetFirstLetter() == 'Q')
 			{
-				return true;
+				figuresChessing++;
+				break;
 			}
 		}
 
@@ -54,7 +56,8 @@ bool King::VerticalAndHorizontal(int x, int y)
 			if (Field::Instance().getFigure(x, i)->GetFirstLetter() == 'r'
 				|| Field::Instance().getFigure(x, i)->GetFirstLetter() == 'Q')
 			{
-				return true;
+				figuresChessing++;
+				break;
 			}
 		}
 
@@ -71,7 +74,8 @@ bool King::VerticalAndHorizontal(int x, int y)
 			if (Field::Instance().getFigure(x, i)->GetFirstLetter() == 'r'
 				|| Field::Instance().getFigure(x, i)->GetFirstLetter() == 'Q')
 			{
-				return true;
+				figuresChessing++;
+				break;
 			}
 		}
 
@@ -81,6 +85,10 @@ bool King::VerticalAndHorizontal(int x, int y)
 		}
 	}
 
+	if (figuresChessing > 0)
+	{
+		return true;
+	}
 	return false;
 }
 
@@ -94,12 +102,14 @@ bool King::Diagonals(int x, int y)
 		if (Field::Instance().getFigure(x - 1, y - 1)->GetTeam() == 'w'
 			&& Field::Instance().getFigure(x - 1, y - 1)->GetFirstLetter() == 'p')
 		{
+			figuresChessing++;
 			pawnInQadrant[2] = true;
 		}
 
 		if (Field::Instance().getFigure(x + 1, y - 1)->GetTeam() == 'w'
 			&& Field::Instance().getFigure(x + 1, y - 1)->GetFirstLetter() == 'p')
 		{
+			figuresChessing++;
 			pawnInQadrant[3] = true;
 		}
 	}
@@ -108,12 +118,14 @@ bool King::Diagonals(int x, int y)
 		if (Field::Instance().getFigure(x + 1, y + 1)->GetTeam() == 'b'
 			&& Field::Instance().getFigure(x + 1, y + 1)->GetFirstLetter() == 'p')
 		{
+			figuresChessing++;
 			pawnInQadrant[0] = true;
 		}
 
 		if (Field::Instance().getFigure(x - 1, y + 1)->GetTeam() == 'b'
 			&& Field::Instance().getFigure(x - 1, y + 1)->GetFirstLetter() == 'p')
 		{
+			figuresChessing++;
 			pawnInQadrant[4] = true;
 		}
 	}
@@ -127,7 +139,8 @@ bool King::Diagonals(int x, int y)
 				if (Field::Instance().getFigure(x + i, y + i)->GetFirstLetter() == 'r'
 					|| Field::Instance().getFigure(x + i, y + i)->GetFirstLetter() == 'Q')
 				{
-					return true;
+					figuresChessing++;
+					break;
 				}
 			}
 
@@ -147,7 +160,8 @@ bool King::Diagonals(int x, int y)
 				if (Field::Instance().getFigure(x - i, y + i)->GetFirstLetter() == 'r'
 					|| Field::Instance().getFigure(x - i, y + i)->GetFirstLetter() == 'Q')
 				{
-					return true;
+					figuresChessing++;
+					break;
 				}
 			}
 
@@ -167,7 +181,8 @@ bool King::Diagonals(int x, int y)
 				if (Field::Instance().getFigure(x - i, y - i)->GetFirstLetter() == 'r'
 					|| Field::Instance().getFigure(x - i, y - i)->GetFirstLetter() == 'Q')
 				{
-					return true;
+					figuresChessing++;
+					break;
 				}
 			}
 
@@ -187,7 +202,8 @@ bool King::Diagonals(int x, int y)
 				if (Field::Instance().getFigure(x + i, y - i)->GetFirstLetter() == 'r'
 					|| Field::Instance().getFigure(x + i, y - i)->GetFirstLetter() == 'Q')
 				{
-					return true;
+					figuresChessing++;
+					break;
 				}
 			}
 
@@ -196,6 +212,11 @@ bool King::Diagonals(int x, int y)
 				break;
 			}
 		}
+	}
+
+	if (figuresChessing > 0)
+	{
+		return true;
 	}
 
 	return false;
@@ -217,52 +238,85 @@ bool King::KnightMove(int x, int y)
 	if ((Field::Instance().getFigure(x + 2, y - 1)->GetTeam() != GetTeam())
 		&& (Field::Instance().getFigure(x + 2, y - 1)->GetFirstLetter() == 'k'))
 	{
-		return true;
+		figuresChessing++;
 	}
 
 	if ((Field::Instance().getFigure(x + 2, y + 1)->GetTeam() != GetTeam())
 		&& (Field::Instance().getFigure(x + 2, y + 1)->GetFirstLetter() == 'k'))
 	{
-		return true;
+		figuresChessing++;
 	}
 
 	if ((Field::Instance().getFigure(x - 2, y - 1)->GetTeam() != GetTeam())
 		&& (Field::Instance().getFigure(x - 2, y - 1)->GetFirstLetter() == 'k'))
 	{
-		return true;
+		figuresChessing++;
 	}
 
 	if ((Field::Instance().getFigure(x - 2, y + 1)->GetTeam() != GetTeam())
 		&& (Field::Instance().getFigure(x - 2, y + 1)->GetFirstLetter() == 'k'))
 	{
-		return true;
+		figuresChessing++;
 	}
 
 	if ((Field::Instance().getFigure(x + 1, y + 2)->GetTeam() != GetTeam())
 		&& (Field::Instance().getFigure(x + 1, y + 2)->GetFirstLetter() == 'k'))
 	{
-		return true;
+		figuresChessing++;
 	}
 
 	if ((Field::Instance().getFigure(x + 1, y - 2)->GetTeam() != GetTeam())
 		&& (Field::Instance().getFigure(x + 1, y - 2)->GetFirstLetter() == 'k'))
 	{
-		return true;
+		figuresChessing++;
 	}
 
 	if ((Field::Instance().getFigure(x - 1, y + 2)->GetTeam() != GetTeam())
 		&& (Field::Instance().getFigure(x - 1, y + 2)->GetFirstLetter() == 'k'))
 	{
-		return true;
+		figuresChessing++;
 	}
 
 	if ((Field::Instance().getFigure(x - 1, y - 2)->GetTeam() != GetTeam())
 		&& (Field::Instance().getFigure(x - 1, y - 2)->GetFirstLetter() == 'k'))
 	{
+		figuresChessing++;
+	}
+
+	if (figuresChessing > 0)
+	{
 		return true;
 	}
 
 	return false;
+}
+
+bool King::isCheckmated(int x, int y)
+{
+	y -= 1;
+	x -= 1;
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			if (!Field::Instance().isFigure(x + j, y + i)
+				&& !IsChess(x + j, y + i))
+			{
+				return false;
+			}
+		}
+	}
+
+	if (figuresChessing == 1)
+	{
+		// TODO : check if there is a possible way to "unchess"
+		// the King, so the game can continue
+
+		return false;
+	}
+
+	return true;
 }
 
 bool King::IsChess(int x, int y)
@@ -279,6 +333,11 @@ bool King::IsChess(int x, int y)
 
 bool King::CanReach(int fromX, int fromY, int toX, int toY)
 {
+	if (IsChess(toX, toY))
+	{
+		return false;
+	}
+
 	if (fromX == toX)
 	{
 		if (std::abs(fromY - toY) == 1)
