@@ -21,10 +21,15 @@ bool Knight::CanReach(int fromX, int fromY, int toX, int toY)
 	return false;
 }
 
-bool Knight::AllyOnTheWay(int fromX, int fromY, int toX, int toY)
+bool Knight::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 {
-	if (Field::Instance().getFigure(toX, toY)->GetTeam()
-		== Field::Instance().getFigure(fromX, fromY)->GetTeam())
+	if (!Field::Instance()->isFigure(toX, toY))
+	{
+		return false;
+	}
+
+	if (Field::Instance()->getFigure(toX, toY)->GetTeam()
+		== Field::Instance()->getFigure(fromX, fromY)->GetTeam())
 	{
 		return false;
 	}

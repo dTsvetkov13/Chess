@@ -23,54 +23,68 @@ int main()
 	cin >> name;
 	p2.SetName(name);
 
-	int turns = 0;
+	//std::cout << Field::Instance();
+
+	bool firstPlayer = true;
+	bool anPasanInCurrentTurn = false;
 
 	while (true)
 	{
-		if (turns % 2 == 0)
+		anPasanInCurrentTurn = false;
+		int currentAnPasanX = anPasan.first;
+		int currentAnPasanY = anPasan.second;
+
+		if (firstPlayer)
 		{
-			if (!p1.Turn())
+			if (!p1.isKingCheckmated())
 			{
-				try
+				if (!p1.Turn(p2))
 				{
-
+					firstPlayer = true;
 				}
-
-				catch (int e)
+				else
 				{
-					if (e == 1)
-					{
-						std::cout << "The end! The player with the black figures wins!";
-						break;
-					}
+					firstPlayer = false;
 				}
-
-				turns--;
+			}
+			else
+			{
+				std::cout << "The end! The player with the black figures wins!";
+				//WHO WIN, bool type
+				break;
 			}
 		}
 		else
 		{
-			if (!p2.Turn())
+			if(!p2.isKingCheckmated())
 			{
-				try
+				if (!p2.Turn(p1))
 				{
-
+					firstPlayer = false;
 				}
-
-				catch (int e)
+				else
 				{
-					if (e == 1)
-					{
-						std::cout << "The end! The player with the white figures wins!";
-						break;
-					}
+					firstPlayer = true;
 				}
-
-				turns--;
+			}
+			else
+			{
+				std::cout << "The end! The player with the white figures wins!";
+				break;
 			}
 		}
 
-		turns++;
+		if (anPasan.first != currentAnPasanX || anPasan.second != currentAnPasanY)
+		{
+			anPasanInCurrentTurn = true;
+		}
+
+		if (!anPasanInCurrentTurn)
+		{
+			anPasan.first = -1;
+			anPasan.second = -1;
+		}
 	}
 
+	return 0;
 }

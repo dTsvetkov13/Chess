@@ -15,9 +15,14 @@ public:
 	string& GetName();
 	void SetTeam(char);
 	char GetTeam();
-	bool Turn();
+	bool IsValid(int x, int y);
+	bool Turn(Player &enemyPlayer);
+	bool isKingCheckmated();
+	void SetKingIntoChess();
 
 private:
+	std::pair<int, int> m_king;
+	bool kingIsInChess = false;
 	string m_name;
 	char m_team; //w - white, b - black
 };

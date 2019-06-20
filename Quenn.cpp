@@ -19,15 +19,12 @@ void Quenn::SetTeam(char team)
 
 bool Quenn::CanReach(int fromX, int fromY, int toX, int toY)
 {
-	Rook r;
-	Bishop b;
-
-	if (r.CanReach1(fromX, fromY, toX, toY))
+	if (Rook::CanReach(fromX, fromY, toX, toY))
 	{
 		return true;
 	}
 
-	if (b.CanReach1(fromX, fromY, toX, toY))
+	if (Bishop::CanReach(fromX, fromY, toX, toY))
 	{
 		return true;
 	}
@@ -35,17 +32,14 @@ bool Quenn::CanReach(int fromX, int fromY, int toX, int toY)
 	return false;
 }
 
-bool Quenn::AllyOnTheWay(int fromX, int fromY, int toX, int toY)
+bool Quenn::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 {
-	Rook r;
-	Bishop b;
-
-	if (r.AllyOnTheWay1(fromX, fromY, toX, toY))
+	if (Rook::FigureOnTheWay(fromX, fromY, toX, toY))
 	{
 		return true;
 	}
 
-	if (b.AllyOnTheWay1(fromX, fromY, toX, toY))
+	if (Bishop::FigureOnTheWay(fromX, fromY, toX, toY))
 	{
 		return true;
 	}

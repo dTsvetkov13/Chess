@@ -20,23 +20,22 @@ bool Rook::CanReach(int fromX, int fromY, int toX, int toY)
 	else return false;
 }
 
-bool Rook::AllyOnTheWay(int fromX, int fromY, int toX, int toY)
+bool Rook::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 {
 	if (fromX == toX)
 	{
 		bool up = true;
-		int dist = fromY = toY;
+		int dist = std::abs(fromY - toY);
 		if (fromY < toY)
 		{
 			up = false;
-			dist = toY - fromY;
 		}
 
 		if (up)
 		{
 			for (int i = 1; i < dist; i++)
 			{
-				if (Field::Instance().isFigure(toX, toY + i))
+				if (Field::Instance()->isFigure(fromX, toY + i))
 				{
 					return true;
 				}
@@ -46,7 +45,7 @@ bool Rook::AllyOnTheWay(int fromX, int fromY, int toX, int toY)
 		{
 			for (int i = 1; i < dist; i++)
 			{
-				if (Field::Instance().isFigure(toX, toY - i))
+				if (Field::Instance()->isFigure(fromX, toY - i))
 				{
 					return true;
 				}
@@ -65,9 +64,9 @@ bool Rook::AllyOnTheWay(int fromX, int fromY, int toX, int toY)
 
 		if (left)
 		{
-			for (int i = 1; i <= dist; i++)
+			for (int i = 1; i < dist; i++)
 			{
-				if (Field::Instance().isFigure(toX + i, toY))
+				if (Field::Instance()->isFigure(toX + i, toY))
 				{
 					return true;
 				}
@@ -77,7 +76,7 @@ bool Rook::AllyOnTheWay(int fromX, int fromY, int toX, int toY)
 		{
 			for (int i = 1; i < dist; i++)
 			{
-				if (Field::Instance().isFigure(toX - i, toY))
+				if (Field::Instance()->isFigure(fromX + i, toY))
 				{
 					return true;
 				}
@@ -87,7 +86,7 @@ bool Rook::AllyOnTheWay(int fromX, int fromY, int toX, int toY)
 
 	return false;
 }
-
+//delete this funcs
 bool Rook::CanReach1(int fromX, int fromY, int toX, int toY)
 {
 	if (CanReach(fromX, fromY, toX, toY))
@@ -99,9 +98,17 @@ bool Rook::CanReach1(int fromX, int fromY, int toX, int toY)
 
 bool Rook::AllyOnTheWay1(int fromX, int fromY, int toX, int toY)
 {
-	if (AllyOnTheWay(fromX, fromY, toX, toY))
+	if (FigureOnTheWay(fromX, fromY, toX, toY))
 	{
 		return true;
 	}
+
+//	isMoved = true;
+
 	return false;
 }
+
+/*bool Rook::IsMoved()
+{
+	return isMoved;
+}*/

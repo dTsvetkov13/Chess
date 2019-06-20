@@ -6,15 +6,19 @@
 
 //TODO rokado changes, isMoved
 
-class Rook : public Figure
+class Rook : public virtual Figure
 {
+private:
+	//bool isMoved = false;
 protected:
-	bool CanReach(int fromX, int fromY, int toX, int toY);
-	bool AllyOnTheWay(int fromX, int fromY, int toX, int toY);
+	bool CanReach(int fromX, int fromY, int toX, int toY) override;
+	bool FigureOnTheWay(int fromX, int fromY, int toX, int toY) override;
 public:
-	bool CanReach1(int fromX, int fromY, int toX, int toY);
-	bool AllyOnTheWay1(int fromX, int fromY, int toX, int toY);
+	//delete this 2 funcs
 	Rook();
 	~Rook();
+	bool CanReach1(int fromX, int fromY, int toX, int toY);
+	bool AllyOnTheWay1(int fromX, int fromY, int toX, int toY);
+//	bool IsMoved();
 };
 

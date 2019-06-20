@@ -1,11 +1,11 @@
 #pragma once
 #include "Figure.h"
 
-class Bishop : public Figure
+class Bishop : public virtual Figure
 {
 protected:
-	bool CanReach(int fromX, int fromY, int toX, int toY);
-	bool AllyOnTheWay(int fromX, int fromY, int toX, int toY);
+	bool CanReach(int fromX, int fromY, int toX, int toY) override;
+	bool FigureOnTheWay(int fromX, int fromY, int toX, int toY) override;
 public:
 	Bishop();
 	~Bishop();

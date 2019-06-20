@@ -4,18 +4,18 @@
 class King : public Figure
 {
 private:
-
 	int figuresChessing = 0;
-
-	bool VerticalAndHorizontal(int x, int y);
-	bool Diagonals(int x, int y);
-	bool KnightMove(int x, int y);
+	//bool isMoved = false;
+protected:
+	bool CanReach(int fromX, int fromY, int toX, int toY) override;
+	bool FigureOnTheWay(int fromX, int fromY, int toX, int toY) override;
 public:
-	int GetFiguresChessing();
-	bool IsChess(int x, int y);
-	bool CanReach(int fromX, int fromY, int toX, int toY);
-	bool AllyOnTheWay(int fromX, int fromY, int toX, int toY);
 	King();
 	~King();
+	int GetFiguresChessing();
+	bool CanBeUnchessed(int x, int y);
+	bool isCheckmated(int x, int y);
+	bool IsInChess(int x, int y);
+	//bool IsMoved();
 };
 
