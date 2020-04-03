@@ -1,50 +1,105 @@
 #include "Rook.h"
+#include "Field.h"
 
 Rook::Rook()
 {
+	SetFigureType(Figures::Rook);
+}
+
+Rook::Rook(Team team)
+{
+	SetFigureType(Figures::Rook);
+	SetTeam(team);
 }
 
 Rook::~Rook()
 {
 }
 
-bool Rook::CanReach(char* from, char* to)
+std::string Rook::GetFigureSymbol()
 {
-	int toX = tolower(to[0]) - 'a';
-	int toY = to[1] - '0';
-	int fromX = tolower(from[0] - 'a');
-	int fromY = from[1] - '0';
+	if (GetTeam() == Team::Black)
+	{
+		return "br";
+	}
+	else
+	{
+		return "wr";
+	}
+}
 
-	if (toX >= 0 && toX <= 7 && toY >= 0 && toY <= 7) {
-		if(toX == fromX)
+bool Rook::CanReach(const Cord& from, const Cord& to)
+{
+	if (from.x == to.x || from.y == to.y)
+	{
+		return true;
+	}
+	else return false;
+}
+
+bool Rook::FigureOnTheWay(const Cord& from, const Cord& to)
+{
+	if (from.x == to.x)
+	{
+		bool up = true;
+		int dist = std::abs(from.y - to.y);
+		if (from.y < to.y)
 		{
-			if (fromY > toY)
+			up = false;
+		}
+
+		if (up)
+		{
+			for (int i = 1; i < dist; i++)
 			{
-				for (int i = fromY; i >= toY; i--)
+				if (Field::Instance()->isFigure(Cord(from.x, to.y + i)))
 				{
-					if (true)
-					{
-						
-					}
+					return true;
 				}
 			}
-			else
-			{
-
-			}
-		}
-		else if (toY == fromY)
-		{
-
 		}
 		else
 		{
-			cout << "cant reach/n";
-			return false;
+			for (int i = 1; i < dist; i++)
+			{
+				if (Field::Instance()->isFigure(Cord(from.x, to.y - i)))
+				{
+					return true;
+				}
+			}
 		}
 	}
 	else
 	{
-		return false;
+		bool left = true;
+		int dist = from.x - to.x;
+		if (from.x < to.x)
+		{
+			left = false;
+			dist = to.x - from.x;
+		}
+
+		if (left)
+		{
+			for (int i = 1; i < dist; i++)
+			{
+				if (Field::Instance()->isFigure(Cord(to.x + i, to.y)))
+				{
+					return true;
+				}
+			}
+		}
+		else
+		{
+			for (int i = 1; i < dist; i++)
+			{
+				if (Field::Instance()->isFigure(Cord(to.x + i, to.y)))
+				{
+					return true;
+				}
+			}
+		}
 	}
+
+	return false;
 }
