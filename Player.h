@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <string>
-#include "Field.h"
+#include "Figure.h"
 
 using namespace std;
 
@@ -13,17 +13,18 @@ public:
 	~Player();
 	void SetName(string);
 	string& GetName();
-	void SetTeam(char);
-	char GetTeam();
+	void SetTeam(Team);
+	Team GetTeam();
 	bool IsValid(int x, int y);
-	bool Turn(Player &enemyPlayer);
+	bool Turn();
 	bool isKingCheckmated();
 	void SetKingIntoChess();
+	void SetKingCords(const Cord&);
 
 private:
-	std::pair<int, int> m_king;
+	Cord m_king;
 	bool kingIsInChess = false;
 	string m_name;
-	char m_team; //w - white, b - black
+	Team m_team;
 };
 

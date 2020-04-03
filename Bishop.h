@@ -4,12 +4,12 @@
 class Bishop : public virtual Figure
 {
 protected:
-	bool CanReach(int fromX, int fromY, int toX, int toY) override;
-	bool FigureOnTheWay(int fromX, int fromY, int toX, int toY) override;
+	bool CanReach(const Cord& from, const Cord& to) override;
+	bool FigureOnTheWay(const Cord& from, const Cord& to) override;
 public:
 	Bishop();
+	Bishop(Team);
 	~Bishop();
-	bool CanReach1(int fromX, int fromY, int toX, int toY);
-	bool AllyOnTheWay1(int fromX, int fromY, int toX, int toY);
+	std::string GetFigureSymbol() override;
 };
 

@@ -5,13 +5,15 @@
 
 class Quenn : public Rook, public Bishop
 {
-protected:
-	virtual bool CanReach(int fromX, int fromY, int toX, int toY) override;
-	virtual bool FigureOnTheWay(int fromX, int fromY, int toX, int toY) override;
+private:
+	virtual bool CanReach(const Cord& from, const Cord& to) override;
+	virtual bool FigureOnTheWay(const Cord& from, const Cord& to) override;
 public:
-	void SetTeam(char);
-	//bool Move(char *from, char *to);
 	Quenn();
+	Quenn(Team team);
 	~Quenn();
+	void SetTeam(Team);
+	std::string GetFigureSymbol() override;
+	//bool Move(char *from, char *to);
 };
 

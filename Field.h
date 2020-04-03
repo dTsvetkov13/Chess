@@ -1,10 +1,11 @@
 #pragma once
-#include <iostream>
+	
 #include "Figure.h"
 #include <fstream>
 #include <vector>
 #include <array>
 #include <memory>
+#include "King.h"
 
 static std::pair<int, int> anPasan;
 
@@ -15,24 +16,26 @@ private:
 	static Field* instance;
 	Field();
 	Field(Field const& copy);
-	Field& operator=(Field const& copy);
+	const Field& operator=(Field const& copy);
 	std::pair<int, int> whiteKing;
 	std::pair<int, int> blackKing;
 
 public:
 	~Field();
 	static Field* Instance();
-	//Figure* GetField();
-	void Move(int fromX, int fromY, int toX, int toY);
-	//Figure* getFigure(char *x, int y);
-	Figure* getFigure(int x, int y);
+	std::array<std::array<std::unique_ptr<Figure>, 8>, 8 >& getField();
+	Figure* getFigure(const Cord&);
 	std::pair<int, int> GetCordsOfWhiteKing();
 	std::pair<int, int> GetCordsOfBlackKing();
-	std::pair<int, int> GetCordsOfEnemyKing(char myTeam);
-	bool isFigure(int x, int y);
-	//bool isFigure(char *x, int y);
-	void SetToNullPointer(int x, int y);
-	void CastlingMove(int fromX, int fromY, int toX, int toY);
+	std::pair<int, int> GetCordsOfEnemyKing(Team myTeam);
+	bool isFigure(const Cord&);
+	void SetToNullPointer(const Cord&);
 	friend std::ostream& operator<<(std::ostream& os, Field* f);
+
+	void swapTwoFigures(const Cord& from, const Cord& to);
+	void setFigure(const Cord& cord, Figures &figureType, Team team);
+	King* getKing(const Cord& cord);
+	bool CastlingMove(const Cord& king, const Cord& rook, bool &left);
+	bool isCastlingMove(const Cord& king, const Cord& rook);
 };
 

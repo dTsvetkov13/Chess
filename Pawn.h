@@ -4,11 +4,11 @@
 class Pawn : public Figure
 {
 protected:
-//	bool isMoved = false;
-	bool CanReach(int fromX, int fromY, int toX, int toY) override;
-	bool FigureOnTheWay(int fromX, int fromY, int toX, int toY) override;
+	bool CanReach(const Cord& from, const Cord& to) override;
+	bool FigureOnTheWay(const Cord& from, const Cord& to) override;
 public:
 	Pawn();
+	Pawn(Team team);
 	~Pawn();
+	std::string GetFigureSymbol() override;
 };
-

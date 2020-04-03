@@ -8,29 +8,20 @@
 #include "Figure.h"
 #include <ctype.h>
 #include <fstream>
+#include <memory>
 
 Field::Field()
 {
-	std::unique_ptr<Figure> rook(new Rook());
-	std::unique_ptr<Figure> knight(new Knight());
-	std::unique_ptr<Figure> bishop(new Bishop());
-	std::unique_ptr<Figure> rook1(new Rook());
-	std::unique_ptr<Figure> knight1(new Knight());
-	std::unique_ptr<Figure> bishop1(new Bishop());
-	std::unique_ptr<Figure> quenn(new Quenn());
-	std::unique_ptr<Figure> king(new King());
-	char team = 'b';
-	//1cite
-	rook.get()->SetTeam(team);
-	knight.get()->SetTeam(team);
-	bishop.get()->SetTeam(team);
-	rook1.get()->SetTeam(team);
-	knight1.get()->SetTeam(team);
-	bishop1.get()->SetTeam(team);
-	king.get()->SetTeam(team);
-	quenn.get()->SetTeam(team);
+	Team team = Team::Black;
 
-	std::cout << king.get()->GetFirstLetter() << bishop.get()->GetFirstLetter() << std::endl;
+	std::unique_ptr<Figure> rook(new Rook(team));
+	std::unique_ptr<Figure> knight(new Knight(team));
+	std::unique_ptr<Figure> bishop(new Bishop(team));
+	std::unique_ptr<Figure> rook1(new Rook(team));
+	std::unique_ptr<Figure> knight1(new Knight(team));
+	std::unique_ptr<Figure> bishop1(new Bishop(team));
+	std::unique_ptr<Figure> quenn(new Quenn(team));
+	std::unique_ptr<Figure> king(new King(team));
 
 	m_field[0][0] = std::move(rook1);
 	m_field[0][7] = std::move(rook);
@@ -41,17 +32,11 @@ Field::Field()
 	m_field[0][4] = std::move(king);
 	m_field[0][3] = std::move(quenn);
 
-	std::cout << m_field[0][4]->GetFirstLetter() << m_field[0][2]->GetFirstLetter() << std::endl;
-
 	for (int i = 0; i < 8; i++)
 	{
-		std::unique_ptr<Figure> pawn(new Pawn());
-		pawn.get()->SetTeam(team);
+		std::unique_ptr<Figure> pawn(new Pawn(team));
 		m_field[1][i] = std::move(pawn);
-		std::cout << m_field[1][i].get()->GetFirstLetter();
 	}
-	
-	std::cout << std::endl;
 
 	for (int i = 2; i < 6; i++)
 	{
@@ -61,30 +46,16 @@ Field::Field()
 		}
 	}
 
-	team = 'w';
+	team = Team::White;
 
-	std::cout << "kdsds" << std::endl;
-
-	std::unique_ptr<Figure> whiteRook(new Rook());
-	std::unique_ptr<Figure> whiteKnight(new Knight());
-	std::unique_ptr<Figure> whiteBishop(new Bishop());
-	std::unique_ptr<Figure> whiteRook1(new Rook());
-	std::unique_ptr<Figure> whiteKnight1(new Knight());
-	std::unique_ptr<Figure> whiteBishop1(new Bishop());
+	std::unique_ptr<Figure> whiteRook(new Rook(team));
+	std::unique_ptr<Figure> whiteKnight(new Knight(team));
+	std::unique_ptr<Figure> whiteBishop(new Bishop(team));
+	std::unique_ptr<Figure> whiteRook1(new Rook(team));
+	std::unique_ptr<Figure> whiteKnight1(new Knight(team));
+	std::unique_ptr<Figure> whiteBishop1(new Bishop(team));
 	std::unique_ptr<Figure> whiteQuenn(new Quenn());
-	std::unique_ptr<Figure> whiteKing(new King());
-
-	whiteRook.get()->SetTeam(team);
-	whiteKnight.get()->SetTeam(team);
-	whiteBishop.get()->SetTeam(team);
-	whiteRook1.get()->SetTeam(team);
-	whiteKnight1.get()->SetTeam(team);
-	whiteBishop1.get()->SetTeam(team);
-	whiteKing.get()->SetTeam(team);
-	whiteQuenn.get()->SetTeam(team);
-	//pawn.get()->SetTeam(team);
-
-	std::cout << "aaaaa" << std::endl;
+	std::unique_ptr<Figure> whiteKing(new King(team));
 
 	m_field[7][0] = std::move(whiteRook1);
 	m_field[7][7] = std::move(whiteRook);
@@ -95,18 +66,12 @@ Field::Field()
 	m_field[7][4] = std::move(whiteKing);
 	m_field[7][3] = std::move(whiteQuenn);
 
-	std::cout << m_field[7][4]->GetFirstLetter() << m_field[7][2]->GetFirstLetter() << std::endl;
-
 	for (int i = 0; i < 8; i++)
 	{
-		std::unique_ptr<Figure> pawn(new Pawn());
-		pawn.get()->SetTeam(team);
+		std::unique_ptr<Figure> pawn(new Pawn(team));
 		m_field[6][i] = std::move(pawn);
 	}
-
-	//std::cout << Instance();
 }
-
 
 Field::~Field()
 {
@@ -121,20 +86,15 @@ Field* Field::Instance()
 	return instance;
 }
 
-//Figure* Field::GetField()
-//{
-//	return m_field[0][0];
-//}
-
-//This is useless and awful
-//Figure* Field::getFigure(char *x, int y)
-//{
-//	return m_field[y - 1][(tolower(*x) - 'a')].get();
-//}
-
-Figure* Field::getFigure(int x, int y)
+const Field& Field::operator=(Field const& copy)
 {
-	return m_field[y - 1][x-1].get();
+	*instance = copy;
+	return *instance;
+}
+
+Figure* Field::getFigure(const Cord& cord)
+{
+	return m_field[cord.y - 1][cord.x-1].get();
 }
 
 std::pair<int, int> Field::GetCordsOfWhiteKing()
@@ -147,10 +107,9 @@ std::pair<int, int> Field::GetCordsOfBlackKing()
 	return blackKing;
 }
 
-std::pair<int, int> Field::GetCordsOfEnemyKing(char myTeam)
+std::pair<int, int> Field::GetCordsOfEnemyKing(Team myTeam)
 {
-	//make exception for wrong team
-	if (myTeam == 'w')
+	if (myTeam == Team::White)
 	{
 		return blackKing;
 	}
@@ -160,20 +119,15 @@ std::pair<int, int> Field::GetCordsOfEnemyKing(char myTeam)
 	}
 }
 
-
-//This is useless and awful
-//bool Field::isFigure(char *x, int y)
-//{
-//	if (m_field[y - 1][(tolower(*x) - 'a')] != nullptr)
-//	{
-//		return true;
-//	}
-//	else return false;
-//}
-
-bool Field::isFigure(int x, int y)
+bool Field::isFigure(const Cord& cord)
 {
-	if (m_field[y - 1][x - 1] != nullptr)
+	if (cord.x - 1 < 0 || cord.x - 1 >= 8
+		|| cord.y - 1 < 0 || cord.y - 1 >= 8)
+	{
+		return false;
+	}
+
+	if (m_field[cord.y - 1][cord.x - 1] != nullptr)
 	{
 		return true;
 	}
@@ -182,7 +136,6 @@ bool Field::isFigure(int x, int y)
 
 std::ostream& operator<<(std::ostream& os, Field* f)
 {
-	//TODO : output like if there is fig, print (k, K, ...), else "-"
 	os << "  |";
 	for (char i = 'A'; i <= 'H'; i++)
 	{
@@ -199,13 +152,13 @@ std::ostream& operator<<(std::ostream& os, Field* f)
 		os << " " << 9 - i << "|";
 		for (int k = 1; k <= 8; k++)
 		{
-			if (!f->isFigure(k, i))
+			if (!f->isFigure(Cord(k, i)))
 			{
 				os << " - ";
 			}
 			else
 			{
-				os << " " << f->getFigure(k, i)->GetTeam() << f->getFigure(k, i)->GetFirstLetter();
+				os << " " << f->getFigure(Cord(k, i))->GetFigureSymbol();
 			}
 		}
 
@@ -219,54 +172,150 @@ std::ostream& operator<<(std::ostream& os, Field* f)
 	return os;
 }
 
-void Field::SetToNullPointer(int x, int y)
+void Field::SetToNullPointer(const Cord& cord)
 {
-	m_field[y - 1][x - 1] = nullptr;
+	m_field[cord.y - 1][cord.x - 1] = nullptr;
 }
 
-void Field::Move(int fromX, int fromY, int toX, int toY)
+void Field::swapTwoFigures(const Cord& from, const Cord& to)
 {
-	/*Figure* temp = m_field[(moveTo[1] - '0') - 1][(tolower(moveTo[0]) - 'a')];
-	
-	m_field[(moveTo[1] - '0') - 1][(tolower(moveTo[0]) - 'a')]
-		= m_field[(moveFrom[1] - '0') - 1][(tolower(moveFrom[0]) - 'a')];
-	
-	m_field[(moveFrom[1] - '0') - 1][(tolower(moveFrom[0]) - 'a')] = temp;*/
+	m_field[to.y - 1][to.x - 1].swap(m_field[from.y - 1][from.x - 1]);
+}
 
-	if (m_field[fromY - 1][fromX - 1].get()->GetFirstLetter() == 'K')
+std::array<std::array<std::unique_ptr<Figure>, 8>, 8 >& Field::getField()
+{
+	return m_field;
+}
+
+void Field::setFigure(const Cord& cord, Figures &figureType, Team team)
+{
+	switch(figureType)
 	{
-		if (m_field[fromY - 1][fromX - 1].get()->GetTeam() == 'w')
+		case(Figures::Bishop):
 		{
-			whiteKing.first = toX;
-			whiteKing.second = toY;
+			m_field[cord.y - 1][cord.x - 1].reset(new Bishop(Team::White));
+			break;
 		}
-		else
+		case(Figures::King):
 		{
-			blackKing.first = toX;
-			blackKing.second = toY;
+			m_field[cord.y - 1][cord.x - 1].reset(new King(Team::White));
+			break;
 		}
+		case(Figures::Knight):
+		{
+			m_field[cord.y - 1][cord.x - 1].reset(new Knight(Team::White));
+			break;
+		}
+		case(Figures::Pawn):
+		{
+			m_field[cord.y - 1][cord.x - 1].reset(new Pawn(Team::White));
+			break;
+		}
+		case(Figures::Quenn):
+		{
+			m_field[cord.y - 1][cord.x - 1].reset(new Quenn(Team::White));
+			break;
+		}
+		case(Figures::Rook):
+		{
+			m_field[cord.y - 1][cord.x - 1].reset(new Rook(Team::White));
+			break;
+		}
+		break;
 	}
-	std::cout << "the m_field x = " << toX - 1 << " and m_field y = " << toY - 1 << std::endl;
-	std::cout << "the m_field x = " << fromX - 1 << " and m_field y = " << fromY - 1 << std::endl;
-	
-
-	m_field[toY - 1][toX - 1].swap(m_field[fromY - 1][fromX - 1]);
-	//m_field[toY - 1][toX - 1] = std::move(m_field[fromY - 1][fromX - 1]);
-	m_field[fromY - 1][fromX - 1] = nullptr;
 }
 
-void Field::CastlingMove(int fromX, int fromY, int toX, int toY)
+King* Field::getKing(const Cord& cord)
 {
-	if (fromX > toX)
+	if (m_field[cord.y - 1][cord.x - 1].get()->GetFigureType() == Figures::King)
 	{
-		toX -= 2;
+		return (King*)m_field[cord.y - 1][cord.x - 1].get();
+	}
+
+	return nullptr;
+}
+
+bool Field::CastlingMove(const Cord& king, const Cord& rook, bool &left)
+{
+	if (m_field[king.y - 1][king.x - 1].get()->IsMoved())
+	{
+		std::cout << "You cannot do castling move because your king is moved!" << std::endl;
+		return false;
+	}
+
+	if (m_field[rook.y - 1][rook.x - 1].get()->IsMoved())
+	{
+		std::cout << "You cannot do castling move because this rook is moved!" << std::endl;
+		return false;
+	}
+
+	if (king.x > rook.x)
+	{
+		//BIG CASTLING
+		for (int i = 0; i < 3; i++)
+		{
+			if (m_field[rook.y - 1][rook.x + i] != nullptr)
+			{
+				std::cout << "You cannot do castling move because there is a figure between them!" << std::endl;
+				return false;
+			}
+		}
+
+		left = true;
+
+		swapTwoFigures(king, Cord(king.x - 2, king.y));
+		swapTwoFigures(rook, Cord(rook.x + 3, rook.y));
+		return true;
 	}
 	else
 	{
-		toX += 1;
+		//SMALL CASTLING
+		for (int i = 0; i < 2; i++)
+		{
+			if (m_field[rook.y - 1][king.x + i] != nullptr)
+			{
+				std::cout << "You cannot do castling move because there is a figure between them!" << std::endl;
+				return false;
+			}
+		}
+
+		left = false;
+
+		swapTwoFigures(king, Cord(king.x + 2, king.y));
+		swapTwoFigures(rook, Cord(rook.x - 2, rook.y));
+		return true;
+	}
+}
+
+bool Field::isCastlingMove(const Cord& first, const Cord& second)
+{
+	if (m_field[first.y - 1][first.x - 1] != nullptr && m_field[second.y - 1][second.x - 1] != nullptr)
+	{
+		Figure *firstFigure = m_field[first.y - 1][first.x - 1].get();
+		Figure *secondFigure = m_field[second.y - 1][second.x - 1].get();
+
+		if (firstFigure->GetTeam() == secondFigure->GetTeam())
+		{
+			if (!((firstFigure->GetFigureType() == Figures::King && secondFigure->GetFigureType() == Figures::Rook)
+				|| (firstFigure->GetFigureType() == Figures::Rook && secondFigure->GetFigureType() == Figures::King)))
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
 	}
 
-	std::unique_ptr<Figure> temp = std::move(m_field[fromY - 1][fromX - 1]);
-	m_field[fromY - 1][fromX - 1] = std::move(m_field[toY - 1][toX - 1]);
-	m_field[toY - 1][toX - 1] = std::move(temp);
+	if (first.y == second.y && ((std::abs(first.x - second.x) == 4) || (std::abs(second.x - first.x) == 3)))
+	{
+		return true;
+	}
+
+	else return false;
 }

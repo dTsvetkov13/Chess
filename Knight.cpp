@@ -1,37 +1,55 @@
 #include "Knight.h"
 #include "Field.h"
 
-
 Knight::Knight()
 {
-	SetFirstLetter('k');
+	SetFigureType(Figures::Knight);
+}
+
+Knight::Knight(Team team)
+{
+	SetFigureType(Figures::Knight);
+	SetTeam(team);
 }
 
 Knight::~Knight()
 {
 }
 
-bool Knight::CanReach(int fromX, int fromY, int toX, int toY)
+std::string Knight::GetFigureSymbol()
 {
-	if (std::abs(fromX - toX) == 2 && std::abs(fromY - toY) == 1
-		|| std::abs(fromY - toY) == 2 && std::abs(fromX - toX) == 1)
+	if (GetTeam() == Team::Black)
+	{
+		return "bk";
+	}
+	else
+	{
+		return "wk";
+	}
+}
+
+bool Knight::CanReach(const Cord& from, const Cord& to)
+{
+	if (std::abs(from.x - to.x) == 2 && std::abs(from.y - to.y) == 1
+		|| std::abs(from.y - to.y) == 2 && std::abs(from.x - to.x) == 1)
 	{
 		return true;
 	}
 	return false;
 }
 
-bool Knight::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
+bool Knight::FigureOnTheWay(const Cord& from, const Cord& to)
 {
-	if (!Field::Instance()->isFigure(toX, toY))
+	if (!Field::Instance()->isFigure(to))
 	{
 		return false;
 	}
 
-	if (Field::Instance()->getFigure(toX, toY)->GetTeam()
-		== Field::Instance()->getFigure(fromX, fromY)->GetTeam())
+	if (Field::Instance()->getFigure(to)->GetTeam()
+		!= Field::Instance()->getFigure(from)->GetTeam())
 	{
 		return false;
 	}
+	
 	return true;
 }

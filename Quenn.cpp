@@ -5,26 +5,44 @@
 
 Quenn::Quenn()
 {
-	Figure::Figure::SetFirstLetter('Q');
+	Figure::SetFigureType(Figures::Quenn);
+}
+
+Quenn::Quenn(Team team)
+{
+	SetFigureType(Figures::Quenn);
+	SetTeam(team);
 }
 
 Quenn::~Quenn()
 {
 }
 
-void Quenn::SetTeam(char team)
+std::string Quenn::GetFigureSymbol()
+{
+	if (GetTeam() == Team::Black)
+	{
+		return "bQ";
+	}
+	else
+	{
+		return "wQ";
+	}
+}
+
+void Quenn::SetTeam(Team team)
 {
 	Figure::SetTeam(team);
 }
 
-bool Quenn::CanReach(int fromX, int fromY, int toX, int toY)
+bool Quenn::CanReach(const Cord& from, const Cord& to)
 {
-	if (Rook::CanReach(fromX, fromY, toX, toY))
+	if (Rook::CanReach(from, to))
 	{
 		return true;
 	}
 
-	if (Bishop::CanReach(fromX, fromY, toX, toY))
+	if (Bishop::CanReach(from, to))
 	{
 		return true;
 	}
@@ -32,14 +50,14 @@ bool Quenn::CanReach(int fromX, int fromY, int toX, int toY)
 	return false;
 }
 
-bool Quenn::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
+bool Quenn::FigureOnTheWay(const Cord& from, const Cord& to)
 {
-	if (Rook::FigureOnTheWay(fromX, fromY, toX, toY))
+	if (Rook::FigureOnTheWay(from, to))
 	{
 		return true;
 	}
 
-	if (Bishop::FigureOnTheWay(fromX, fromY, toX, toY))
+	if (Bishop::FigureOnTheWay(from, to))
 	{
 		return true;
 	}

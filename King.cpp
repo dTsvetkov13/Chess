@@ -1,42 +1,106 @@
 #include "King.h"
+#include "Pawn.h"
 #include "Field.h"
-#include "Rook.h"
 #include <array>
 
 King::King()
 {
-	SetFirstLetter('K'); 
+	SetFigureType(Figures::King);
+}
+
+King::King(Team team)
+{
+	SetFigureType(Figures::King);
+	SetTeam(team);
 }
 
 King::~King()
 {
 }
 
-bool King::isCheckmated(int x, int y)
+std::string King::GetFigureSymbol()
 {
-	y -= 1;
-	x -= 1;
-
-	for (int i = 0; i < 3; i++)
+	if (GetTeam() == Team::Black)
 	{
-		for (int j = 0; j < 3; j++)
+		return "bK";
+	}
+	else
+	{
+		return "wK";
+	}
+}
+
+bool King::isCheckmated(const Cord &cord)
+{
+	int y = cord.y - 1;
+	int x = cord.x - 1;
+
+	int freeSpaces = 0;
+	Cord temp;
+	bool canFigureFreeSpace = false;
+
+	if (y <= 8 && y > 0)
+	{
+		for (int i = 0; i < 3; i++)
 		{
-			if (!Field::Instance()->isFigure(x + j, y + i)
-				&& !IsInChess(x + j, y + i))
+			if (!((x + i) < 1 || (x + i) > 8))
 			{
-				return false;
+				temp = Cord(x + i, y);
+
+				if (isFreeSpace(temp, canFigureFreeSpace))
+				{
+					freeSpaces++;
+				}
 			}
 		}
 	}
 
-	if (figuresChessing == 1)
+	if (y + 2 < 8 && y + 2 > 0)
 	{
-		// TODO : check if there is a possible way to "unchess"
-		// the King, so the game can continue
-		//DONE
-
-		if (CanBeUnchessed(x, y))
+		for (int i = 0; i < 3; i++)
 		{
+			if (!((x + i) < 1 || (x + i) > 8))
+			{
+				temp = Cord(x + i, y + 2);
+
+				if (isFreeSpace(temp, canFigureFreeSpace))
+				{
+					freeSpaces++;
+				}
+			}
+		}
+	}
+
+	if (!((y + 1) < 1 || (y + 1) > 8 || (x) < 0 || (x) >= 8))
+	{
+		temp = Cord(x, y + 1);
+
+		if (isFreeSpace(temp, canFigureFreeSpace))
+		{
+			freeSpaces++;
+		}
+	}
+
+	if (!((y + 1) < 1 || (y + 1) > 8 || (x + 2) < 1 || (x + 2) > 8))
+	{
+		temp = Cord(x + 2, y + 1);
+
+		if (isFreeSpace(temp, canFigureFreeSpace))
+		{
+			freeSpaces++;
+		}
+	}
+
+	if (freeSpaces > 0)
+	{
+		return false;
+	}
+
+	for (auto it : *Field::Instance()->getFigure(cord)->getFiguresPointingToThisFigure())
+	{
+		if (Field::Instance()->getFigure(it)->CanBeReached(it))
+		{
+			Field::Instance()->getFigure(it)->ClearPointingFigures();
 			return false;
 		}
 	}
@@ -44,92 +108,112 @@ bool King::isCheckmated(int x, int y)
 	return true;
 }
 
-bool King::IsInChess(int x, int y)
+bool King::isFreeSpace(const Cord &cord, bool &canFigureFreeSpace)
 {
-	/*if (CanBeReached(x, y))
+	if (Field::Instance()->isFigure(cord))
 	{
-		figuresChessing = CanBeReached(x, y);
-		return true;
-	}
-	else
-	{
-		return false;
-	}*/
-
-	figuresChessing = CanBeReached(x, y);
-	
-	if (figuresChessing)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool King::CanReach(int fromX, int fromY, int toX, int toY)
-{
-	if (IsInChess(toX, toY))
-	{
-		return false;
-	}
-
-	if (fromY == toY && std::abs(fromX - toX) == 2 && !IsMoved())
-	{
-		//CASTLING (ROCADO)
-
-		if (fromX > toX)
+		if (Field::Instance()->getFigure(cord)->GetTeam() != GetTeam())
 		{
-			if (Field::Instance()->isFigure(toX - 2, toY))
+			if (Field::Instance()->getFigure(cord)->CanBeReached(cord))
 			{
-				if (Field::Instance()->getFigure(toX - 2, toY)->GetFirstLetter() == 'r'
-					&& !Field::Instance()->getFigure(toX - 2, toY)->IsMoved())
-				{
-					return true;
-				}
+				Field::Instance()->getFigure(cord)->ClearPointingFigures();
+				return false;
 			}
+		}
+	}
+	else
+	{
+		Pawn *p = new Pawn(GetTeam());
+
+		if (!p->CanBeReached(cord))
+		{
+			return true;
 		}
 		else
 		{
-			if (Field::Instance()->isFigure(toX + 1, toY))
+			if (!canFigureFreeSpace)
 			{
-				if (Field::Instance()->getFigure(toX + 1, toY)->GetFirstLetter() == 'r'
-					&& !Field::Instance()->getFigure(toX + 1, toY)->IsMoved())
+				if (GetTeam() == Team::White)
 				{
+					p->SetTeam(Team::Black);
+				}
+				else
+				{
+					p->SetTeam(Team::White);
+				}
+
+				if (p->CanBeReached(cord))
+				{
+					Figure* kingInFiguresPointingToThisFigure = p->kingInFiguresPointingToThisFigure();
+
+					if (kingInFiguresPointingToThisFigure != nullptr)
+					{
+						if (kingInFiguresPointingToThisFigure->GetTeam() == GetTeam())
+						{
+							return false;
+						}
+					}
+
+					canFigureFreeSpace = true;
+					delete p;
 					return true;
 				}
 			}
 		}
-	}
-
-	if (fromX == toX)
-	{
-		if (std::abs(fromY - toY) == 1)
-		{
-			return true;
-		}
-	}
-	else if (fromY == toY)
-	{
-		if (std::abs(fromX - toX) == 1)
-		{
-			return true;
-		}
+		delete p;
 	}
 
 	return false;
 }
 
-bool King::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
+bool King::IsInChess(const Cord& cord)
 {
-	if (fromY == toY && std::abs(fromX - toX) == 2)
+	CanBeReached(cord);
+	
+	if (getFiguresPointingToThisFigure()->size())
 	{
-		if (fromX > toX)
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool King::CanReach(const Cord& from, const Cord& to)
+{
+	if (from.x == to.x)
+	{
+		if (std::abs(from.y - to.y) == 1)
+		{
+			return true;
+		}
+	}
+	else if (from.y == to.y)
+	{
+		if (std::abs(from.x - to.x) == 1)
+		{
+			return true;
+		}
+	}
+
+	if (std::abs(from.x - to.x) && std::abs(from.y - to.y))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool King::FigureOnTheWay(const Cord& from, const Cord& to)
+{
+	if (from.y == to.y && std::abs(from.x - to.x) == 2)
+	{
+		if (from.x > to.x)
 		{
 			for (int i = 1; i <= 3; i++)
 			{
-				if (Field::Instance()->isFigure(fromX - i, toY))
+				if (Field::Instance()->isFigure(Cord(from.x - i, to.y)))
 				{
 					return true;
 				}
@@ -140,7 +224,7 @@ bool King::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 		{
 			for (int i = 1; i <= 2; i++)
 			{
-				if (Field::Instance()->isFigure(fromX + i, toY))
+				if (Field::Instance()->isFigure(Cord(from.x + i, to.y)))
 				{
 					return true;
 				}
@@ -149,310 +233,17 @@ bool King::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 		}
 	}
 
-	if(Field::Instance()->isFigure(toX, toY))
-		if (Field::Instance()->getFigure(toX, toY)->GetTeam()
+	if(Field::Instance()->isFigure(Cord(to.x, to.y)))
+		if (Field::Instance()->getFigure(Cord(to.x, to.y))->GetTeam()
 			== GetTeam())
 		{	
 			return true;
-		}		
-
-//	isMoved = true;
-
-	return false;
-}
-
-bool King::CanBeUnchessed(int x, int y)
-{
-	for (int i = x; i >= 0; i--)
-	{
-		if (Field::Instance()->getFigure(i, y)->GetTeam() != GetTeam())
-		{
-			if (Field::Instance()->getFigure(i, y)->GetFirstLetter() == 'Q'
-				|| Field::Instance()->getFigure(i, y)->GetFirstLetter() == 'rook')
-			{
-				if (CanBeReached(i, y))
-				{
-					return true;
-				}
-			}
 		}
-	}
-
-	for (int i = x; i < 8; i++)
-	{
-		if (Field::Instance()->getFigure(i, y)->GetTeam() != GetTeam())
-		{
-			if (Field::Instance()->getFigure(i, y)->GetFirstLetter() == 'Q'
-				|| Field::Instance()->getFigure(i, y)->GetFirstLetter() == 'rook')
-			{
-				if (CanBeReached(i, y))
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	for (int i = y; i < 8; i++)
-	{
-		if (Field::Instance()->getFigure(x, i)->GetTeam() != GetTeam())
-		{
-			if (Field::Instance()->getFigure(x, i)->GetFirstLetter() == 'Q'
-				|| Field::Instance()->getFigure(x, i)->GetFirstLetter() == 'rook')
-			{
-				if (CanBeReached(i, y))
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	for (int i = y; i >= 8; i++)
-	{
-		if (Field::Instance()->getFigure(x, i)->GetTeam() != GetTeam())
-		{
-			if (Field::Instance()->getFigure(x, i)->GetFirstLetter() == 'Q'
-				|| Field::Instance()->getFigure(x, i)->GetFirstLetter() == 'rook')
-			{
-				if (CanBeReached(i, y))
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	std::array<bool, 4> pawnInQadrant = { false };
-
-	if (GetTeam() == 'b')
-	{
-		if (Field::Instance()->getFigure(x - 1, y - 1)->GetTeam() == 'w'
-			&& Field::Instance()->getFigure(x - 1, y - 1)->GetFirstLetter() == 'p')
-		{
-			if (CanBeReached(x - 1, y - 1))
-			{
-				return true;
-			}
-			pawnInQadrant[2] = true;
-		}
-
-		if (Field::Instance()->getFigure(x + 1, y - 1)->GetTeam() == 'w'
-			&& Field::Instance()->getFigure(x + 1, y - 1)->GetFirstLetter() == 'p')
-		{
-			if (CanBeReached(x + 1, y - 1))
-			{
-				return true;
-			}
-			pawnInQadrant[3] = true;
-		}
-	}
-	else
-	{
-		if (Field::Instance()->getFigure(x + 1, y + 1)->GetTeam() == 'b'
-			&& Field::Instance()->getFigure(x + 1, y + 1)->GetFirstLetter() == 'p')
-		{
-			if (CanBeReached(x + 1, y + 1))
-			{
-				return true;
-			}
-			pawnInQadrant[0] = true;
-		}
-
-		if (Field::Instance()->getFigure(x - 1, y + 1)->GetTeam() == 'b'
-			&& Field::Instance()->getFigure(x - 1, y + 1)->GetFirstLetter() == 'p')
-		{
-			if (CanBeReached(x - 1, y + 1))
-			{
-				return true;
-			}
-			pawnInQadrant[4] = true;
-		}
-	}
-
-	if (!pawnInQadrant[0])
-	{
-		for (int i = 1; ((x + i) <= 8) || ((y + i) <= 8); i++)
-		{
-			if (Field::Instance()->getFigure(x + i, y + 1)->GetTeam() != GetTeam())
-			{
-				if (Field::Instance()->getFigure(x + i, y + i)->GetFirstLetter() == 'b'
-					|| Field::Instance()->getFigure(x + i, y + i)->GetFirstLetter() == 'Q')
-				{
-					if (CanBeReached(x + i, y + i))
-					{
-						return true;
-					}
-					break;
-				}
-			}
-
-			if (Field::Instance()->isFigure(x + i, y + i))
-			{
-				break;
-			}
-		}
-	}
-
-	if (pawnInQadrant[1])
-	{
-		for (int i = 1; ((x - i) > 0) || ((y + i) <= 8); i++)
-		{
-			if (Field::Instance()->getFigure(x - i, y + 1)->GetTeam() != GetTeam())
-			{
-				if (Field::Instance()->getFigure(x - i, y + i)->GetFirstLetter() == 'b'
-					|| Field::Instance()->getFigure(x - i, y + i)->GetFirstLetter() == 'Q')
-				{
-					if (CanBeReached(x - i, y + i))
-					{
-						return true;
-					}
-					break;
-				}
-			}
-
-			if (Field::Instance()->isFigure(x - i, y + i))
-			{
-				break;
-			}
-		}
-	}
-
-	if (pawnInQadrant[2])
-	{
-		for (int i = 1; ((x - i) > 0) || ((y - i) > 0); i++)
-		{
-			if (Field::Instance()->getFigure(x - i, y - 1)->GetTeam() != GetTeam())
-			{
-				if (Field::Instance()->getFigure(x - i, y - i)->GetFirstLetter() == 'b'
-					|| Field::Instance()->getFigure(x - i, y - i)->GetFirstLetter() == 'Q')
-				{
-					if (CanBeReached(x - i, y - i))
-					{
-						return true;
-					}
-					break;
-				}
-			}
-
-			if (Field::Instance()->isFigure(x - i, y - i))
-			{
-				break;
-			}
-		}
-	}
-
-	if (pawnInQadrant[3])
-	{
-		for (int i = 1; ((x + i) >= 8) || ((y - i) > 0); i++)
-		{
-			if (Field::Instance()->getFigure(x + i, y - 1)->GetTeam() != GetTeam())
-			{
-				if (Field::Instance()->getFigure(x + i, y - i)->GetFirstLetter() == 'b'
-					|| Field::Instance()->getFigure(x + i, y - i)->GetFirstLetter() == 'Q')
-				{
-					if (CanBeReached(x + i, y - i))
-					{
-						return true;
-					}
-					break;
-				}
-			}
-
-			if (Field::Instance()->isFigure(x + i, y - i))
-			{
-				break;
-			}
-		}
-	}
-
-	if ((Field::Instance()->getFigure(x + 2, y - 1)->GetTeam() != GetTeam())
-		&& (Field::Instance()->getFigure(x + 2, y - 1)->GetFirstLetter() == 'k'))
-	{
-		if (CanBeReached(x + 2, y - 1))
-		{
-			return true;
-		}
-	}
-
-	if ((Field::Instance()->getFigure(x + 2, y + 1)->GetTeam() != GetTeam())
-		&& (Field::Instance()->getFigure(x + 2, y + 1)->GetFirstLetter() == 'k'))
-	{
-		if (CanBeReached(x + 2, y - 1))
-		{
-			return true;
-		}
-	}
-
-	if ((Field::Instance()->getFigure(x - 2, y - 1)->GetTeam() != GetTeam())
-		&& (Field::Instance()->getFigure(x - 2, y - 1)->GetFirstLetter() == 'k'))
-	{
-		if (CanBeReached(x - 2, y - 1))
-		{
-			return true;
-		}
-	}
-
-	if ((Field::Instance()->getFigure(x - 2, y + 1)->GetTeam() != GetTeam())
-		&& (Field::Instance()->getFigure(x - 2, y + 1)->GetFirstLetter() == 'k'))
-	{
-		if (CanBeReached(x - 2, y + 1))
-		{
-			return true;
-		}
-	}
-
-	if ((Field::Instance()->getFigure(x + 1, y + 2)->GetTeam() != GetTeam())
-		&& (Field::Instance()->getFigure(x + 1, y + 2)->GetFirstLetter() == 'k'))
-	{
-		if (CanBeReached(x + 1, y + 2))
-		{
-			return true;
-		}
-	}
-
-	if ((Field::Instance()->getFigure(x + 1, y - 2)->GetTeam() != GetTeam())
-		&& (Field::Instance()->getFigure(x + 1, y - 2)->GetFirstLetter() == 'k'))
-	{
-		if (CanBeReached(x + 1, y - 2))
-		{
-			return true;
-		}
-	}
-
-	if ((Field::Instance()->getFigure(x - 1, y + 2)->GetTeam() != GetTeam())
-		&& (Field::Instance()->getFigure(x - 1, y + 2)->GetFirstLetter() == 'k'))
-	{
-		if (CanBeReached(x - 1, y + 2))
-		{
-			return true;
-		}
-	}
-
-	if ((Field::Instance()->getFigure(x - 1, y - 2)->GetTeam() != GetTeam())
-		&& (Field::Instance()->getFigure(x - 1, y - 2)->GetFirstLetter() == 'k'))
-	{
-		if (CanBeReached(x - 1, y - 2))
-		{
-			return true;
-		}
-	}
 
 	return false;
 }
 
 int King::GetFiguresChessing()
 {
-	return figuresChessing;
+	return getFiguresPointingToThisFigure()->size();
 }
-
-/*bool King::IsMoved()
-{
-	return isMoved;
-}
-
-//Make function that check the vert, dia, hor, knights only for the king
-//it is searching for a figure
-//then this figure need to be CanBeReached
-//if it returns true, the king can be "unchessed"
-//done*/

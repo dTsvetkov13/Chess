@@ -3,30 +3,47 @@
 
 Rook::Rook()
 {
-	SetFirstLetter('r');
+	SetFigureType(Figures::Rook);
+}
+
+Rook::Rook(Team team)
+{
+	SetFigureType(Figures::Rook);
+	SetTeam(team);
 }
 
 Rook::~Rook()
 {
 }
 
-bool Rook::CanReach(int fromX, int fromY, int toX, int toY)
+std::string Rook::GetFigureSymbol()
 {
-	if (fromX == toX || fromY == toY)
+	if (GetTeam() == Team::Black)
 	{
-		//if the validation check if the x1 != x2 or y1 != y2
+		return "br";
+	}
+	else
+	{
+		return "wr";
+	}
+}
+
+bool Rook::CanReach(const Cord& from, const Cord& to)
+{
+	if (from.x == to.x || from.y == to.y)
+	{
 		return true;
 	}
 	else return false;
 }
 
-bool Rook::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
+bool Rook::FigureOnTheWay(const Cord& from, const Cord& to)
 {
-	if (fromX == toX)
+	if (from.x == to.x)
 	{
 		bool up = true;
-		int dist = std::abs(fromY - toY);
-		if (fromY < toY)
+		int dist = std::abs(from.y - to.y);
+		if (from.y < to.y)
 		{
 			up = false;
 		}
@@ -35,7 +52,7 @@ bool Rook::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 		{
 			for (int i = 1; i < dist; i++)
 			{
-				if (Field::Instance()->isFigure(fromX, toY + i))
+				if (Field::Instance()->isFigure(Cord(from.x, to.y + i)))
 				{
 					return true;
 				}
@@ -45,7 +62,7 @@ bool Rook::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 		{
 			for (int i = 1; i < dist; i++)
 			{
-				if (Field::Instance()->isFigure(fromX, toY - i))
+				if (Field::Instance()->isFigure(Cord(from.x, to.y - i)))
 				{
 					return true;
 				}
@@ -55,18 +72,18 @@ bool Rook::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 	else
 	{
 		bool left = true;
-		int dist = fromX - toX;
-		if (fromX < toX)
+		int dist = from.x - to.x;
+		if (from.x < to.x)
 		{
 			left = false;
-			dist = toX - fromX;
+			dist = to.x - from.x;
 		}
 
 		if (left)
 		{
 			for (int i = 1; i < dist; i++)
 			{
-				if (Field::Instance()->isFigure(toX + i, toY))
+				if (Field::Instance()->isFigure(Cord(to.x + i, to.y)))
 				{
 					return true;
 				}
@@ -76,7 +93,7 @@ bool Rook::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 		{
 			for (int i = 1; i < dist; i++)
 			{
-				if (Field::Instance()->isFigure(fromX + i, toY))
+				if (Field::Instance()->isFigure(Cord(to.x + i, to.y)))
 				{
 					return true;
 				}
@@ -86,29 +103,3 @@ bool Rook::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 
 	return false;
 }
-//delete this funcs
-bool Rook::CanReach1(int fromX, int fromY, int toX, int toY)
-{
-	if (CanReach(fromX, fromY, toX, toY))
-	{
-		return true;
-	}
-	return false;
-}
-
-bool Rook::AllyOnTheWay1(int fromX, int fromY, int toX, int toY)
-{
-	if (FigureOnTheWay(fromX, fromY, toX, toY))
-	{
-		return true;
-	}
-
-//	isMoved = true;
-
-	return false;
-}
-
-/*bool Rook::IsMoved()
-{
-	return isMoved;
-}*/

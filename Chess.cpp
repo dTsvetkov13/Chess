@@ -2,6 +2,7 @@
 #include <string>
 #include "Figure.h"
 #include "Player.h"
+#include "Field.h"
 
 int main()
 {
@@ -9,24 +10,33 @@ int main()
 	std::pair<int, int> whiteKing;
 
 	Player p1, p2;
-	p1.SetTeam('w');
-	p2.SetTeam('b');
+	p1.SetTeam(Team::White);
+	p2.SetTeam(Team::Black);
 
 	std::cout << "Welcome to Chess!" << std::endl;
 
 	string name;
 	std::cout << "Enter the name of player 1: ";
-	cin >> name;
+	std::getline(std::cin, name);
 	p1.SetName(name);
 
 	std::cout << "Enter the name of player 2: ";
-	cin >> name;
+	std::getline(std::cin, name);
 	p2.SetName(name);
-
-	//std::cout << Field::Instance();
 
 	bool firstPlayer = true;
 	bool anPasanInCurrentTurn = false;
+
+	if (firstPlayer)
+	{
+		p1.SetKingCords(Cord(5, 8));
+		p2.SetKingCords(Cord(5, 1));
+	}
+	else
+	{
+		p1.SetKingCords(Cord(5, 1));
+		p2.SetKingCords(Cord(5, 8));
+	}
 
 	while (true)
 	{
@@ -38,7 +48,7 @@ int main()
 		{
 			if (!p1.isKingCheckmated())
 			{
-				if (!p1.Turn(p2))
+				if (!p1.Turn())
 				{
 					firstPlayer = true;
 				}
@@ -49,8 +59,9 @@ int main()
 			}
 			else
 			{
-				std::cout << "The end! The player with the black figures wins!";
-				//WHO WIN, bool type
+				std::cout << Field::Instance() << std::endl;
+
+				std::cout << "The end! The player with the black figures wins!" << std::endl;
 				break;
 			}
 		}
@@ -58,7 +69,7 @@ int main()
 		{
 			if(!p2.isKingCheckmated())
 			{
-				if (!p2.Turn(p1))
+				if (!p2.Turn())
 				{
 					firstPlayer = false;
 				}
@@ -69,7 +80,9 @@ int main()
 			}
 			else
 			{
-				std::cout << "The end! The player with the white figures wins!";
+				std::cout << Field::Instance() << std::endl;
+
+				std::cout << "The end! The player with the white figures wins!" << std::endl;
 				break;
 			}
 		}
@@ -86,5 +99,7 @@ int main()
 		}
 	}
 
+	system("pause");
+
 	return 0;
-}
+}	

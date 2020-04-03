@@ -1,38 +1,51 @@
 #include "Figure.h"
 #include "Field.h"
 #include "Quenn.h"
+#include "King.h"
 
 Figure::Figure()
 {
 }
 
-Figure::Figure(char team)
+Figure::Figure(Team team)
 {
 	m_team = team;
+}
+
+Figure::Figure(Team team, Figures figureType)
+{
+	m_team = team;
+	m_figureType = figureType;
 }
 
 Figure::~Figure()
 {
+	
 }
 
-void Figure::SetTeam(char team)
+void Figure::SetTeam(Team team)
 {
 	m_team = team;
 }
 
-char Figure::GetTeam()
+Team Figure::GetTeam()
 {
 	return m_team;
 }
 
-void Figure::SetFirstLetter(char c)
+void Figure::SetFigureType(Figures c)
 {
-	m_firstLetter = c;
+	m_figureType = c;
 }
 
-char Figure::GetFirstLetter()
+Figures Figure::GetFigureType()
 {
-	return m_firstLetter;
+	return m_figureType;
+}
+
+std::string Figure::GetFigureSymbol()
+{
+	return "f";
 }
 
 bool Figure::IsMoved()
@@ -40,258 +53,336 @@ bool Figure::IsMoved()
 	return isMoved;
 }
 
-bool Figure::Move(int fromX, int fromY, int toX, int toY)
+bool Figure::Move(const Cord& from, const Cord& to)
 {
-	if (CanReach(fromX, fromY, toX, toY))
+	if (CanReach(from, to))
 	{
-		if (!FigureOnTheWay(fromX, fromY, toX, toY))
+		if (!FigureOnTheWay(from, to))
 		{
 			isMoved = true;
 
 			return true;
-			//TODO check if the enemy king is in chess
-			//TODO check if this figure can protect the their king
 		}
 		else
 		{
-			std::cout << "There is a figure on the way";
+			std::cout << "There is a figure on the way" << std::endl;
 			return false;
 			//TODO throw exception or enum 
 		}
 	}
 	else
 	{
-		//TODO better message
-		std::cout << "can't reach";
+		std::cout << "Cannot be reached!" << std::endl;
 		return false;
 	}
 }
 
-int Figure::VerticalAndHorizontal(int x, int y)
+int Figure::VerticalAndHorizontal(const Cord& cord)
 {
 	int figuresChessing = 0;
 
-	for (int i = x; i <= 8; i++)
+	Cord temp;
+
+	for (int i = cord.x + 1; i <= 8; i++)
 	{
-		if (Field::Instance()->isFigure(x + i, y))
+		temp = Cord(i, cord.y);
+
+		if (Field::Instance()->isFigure(temp))
 		{
-			if (Field::Instance()->getFigure(x + i, y)->GetTeam() != GetTeam())
+			if (Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
 			{
-				if (Field::Instance()->getFigure(i, y)->GetFirstLetter() == 'r'
-					|| Field::Instance()->getFigure(i, y)->GetFirstLetter() == 'Q')
+				if (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Rook
+					|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Quenn)
 				{
+					figuresPointingToThisFigure.push_back(temp);
 					figuresChessing++;
 					break;
 				}
-			}
-		}
-
-		if (Field::Instance()->isFigure(i, y))
-		{
-			break;
-		}
-	}
-
-	for (int i = x; i > 0; i--)
-	{
-		if (Field::Instance()->isFigure(i, y))
-		{
-			if (Field::Instance()->getFigure(i, y)->GetTeam() != GetTeam())
-			{
-				if (Field::Instance()->getFigure(i, y)->GetFirstLetter() == 'r'
-					|| Field::Instance()->getFigure(i, y)->GetFirstLetter() == 'Q')
+				else
 				{
-					figuresChessing++;
 					break;
 				}
 			}
-		}
-
-		if (Field::Instance()->isFigure(i, y))
-		{
-			break;
+			else
+			{
+				break;
+			}
 		}
 	}
 
-	for (int i = y; i <= 8; i++)
+	for (int i = cord.x - 1; i > 0; i--)
 	{
-		if (Field::Instance()->isFigure(x, i))
+		temp = Cord(i, cord.y);
+
+		if (Field::Instance()->isFigure(temp))
 		{
-			if (Field::Instance()->getFigure(x, i)->GetTeam() != GetTeam())
+			if (Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
 			{
-				if (Field::Instance()->getFigure(x, i)->GetFirstLetter() == 'r'
-					|| Field::Instance()->getFigure(x, i)->GetFirstLetter() == 'Q')
+				if (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Rook
+					|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Quenn)
 				{
+					figuresPointingToThisFigure.push_back(temp);
 					figuresChessing++;
 					break;
 				}
-			}
-		}
-
-		if (Field::Instance()->isFigure(x, i))
-		{
-			break;
-		}
-	}
-
-	for (int i = y; i > 0; i--)
-	{
-		if (Field::Instance()->isFigure(x, i))
-		{
-			if (Field::Instance()->getFigure(x, i)->GetTeam() != GetTeam())
-			{
-				if (Field::Instance()->getFigure(x, i)->GetFirstLetter() == 'r'
-					|| Field::Instance()->getFigure(x, i)->GetFirstLetter() == 'Q')
+				else
 				{
-					figuresChessing++;
 					break;
 				}
 			}
-		}
-
-		if (Field::Instance()->isFigure(x, i))
-		{
-			break;
+			else
+			{
+				break;
+			}
 		}
 	}
-	
-	return figuresChessing;
+
+	for (int i = cord.y + 1; i <= 8; i++)
+	{
+		temp = Cord(cord.x, i);
+
+		if (Field::Instance()->isFigure(temp))
+		{
+			if (Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
+			{
+				if (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Rook
+					|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Quenn)
+				{
+					figuresPointingToThisFigure.push_back(temp);
+					figuresChessing++;
+					break;
+				}
+				else
+				{
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	for (int i = cord.y - 1; i > 0; i--)
+	{
+		temp = Cord(cord.x, i);
+
+		if (Field::Instance()->isFigure(temp))
+		{
+			if (Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
+			{
+				if (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Rook
+					|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Quenn)
+				{
+					figuresPointingToThisFigure.push_back(temp);
+					figuresChessing++;
+					break;
+				}
+				else
+				{
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	return getFiguresPointingToThisFigure()->size();
 }
 
-int Figure::Diagonals(int x, int y)
+int Figure::Diagonals(const Cord& cord)
 {
-	// first check for pawns
+	// first check for Pawns and King
 	int figuresChessing = 0;
 	std::array<bool, 4> pawnInQadrant = { false };
 
-	if (GetTeam() == 'b')
+	Cord temp;
+
+	if (GetTeam() == Team::Black)
 	{
-		if(Field::Instance()->isFigure(x - 1, y - 1))
-			if (Field::Instance()->getFigure(x - 1, y - 1)->GetTeam() == 'w'
-				&& Field::Instance()->getFigure(x - 1, y - 1)->GetFirstLetter() == 'p')
-			{
-				figuresChessing++;
-				pawnInQadrant[2] = true;
-			}
-		if (Field::Instance()->isFigure(x + 1, y - 1))
-			if (Field::Instance()->getFigure(x + 1, y - 1)->GetTeam() == 'w'
-				&& Field::Instance()->getFigure(x + 1, y - 1)->GetFirstLetter() == 'p')
-			{
-				figuresChessing++;
-				pawnInQadrant[3] = true;
-			}
+		if (!(cord.x - 1 < 1 || (cord.y + 1 > 8)))
+		{
+			temp = Cord(cord.x - 1, cord.y + 1);
+
+			if (Field::Instance()->isFigure(temp))
+				if (Field::Instance()->getFigure(temp)->GetTeam() == Team::White
+					&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Pawn
+						|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::King))
+				{
+					figuresPointingToThisFigure.push_back(temp);
+					figuresChessing++;
+					pawnInQadrant[1] = true;
+				}
+		}	
+
+		if (!(cord.x + 1 > 8 || (cord.y + 1 > 8)))
+		{
+			temp = Cord(cord.x + 1, cord.y + 1);
+
+			if (Field::Instance()->isFigure(temp))
+				if (Field::Instance()->getFigure(temp)->GetTeam() == Team::White
+					&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Pawn
+						|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::King))
+				{
+					figuresPointingToThisFigure.push_back(temp);
+					figuresChessing++;
+					pawnInQadrant[0] = true;
+				}
+		}
 	}
 	else
 	{
-		if (Field::Instance()->isFigure(x + 1, y + 1))
-			if (Field::Instance()->getFigure(x + 1, y + 1)->GetTeam() == 'b'
-				&& Field::Instance()->getFigure(x + 1, y + 1)->GetFirstLetter() == 'p')
-			{
-				figuresChessing++;
-				pawnInQadrant[0] = true;
-			}
+		if (!(cord.x + 1 > 8 || (cord.y - 1 < 1)))
+		{
+			temp = Cord(cord.x + 1, cord.y - 1);
 
-		if (Field::Instance()->isFigure(x - 1, y + 1))
-			if (Field::Instance()->getFigure(x - 1, y + 1)->GetTeam() == 'b'
-				&& Field::Instance()->getFigure(x - 1, y + 1)->GetFirstLetter() == 'p')
-			{
-				figuresChessing++;
-				pawnInQadrant[4] = true;
-			}
+			if (Field::Instance()->isFigure(temp))
+				if (Field::Instance()->getFigure(temp)->GetTeam() == Team::Black
+					&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Pawn
+						|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::King))
+				{
+					figuresPointingToThisFigure.push_back(temp);
+					figuresChessing++;
+					pawnInQadrant[3] = true;
+				}
+		}
+
+		if (!(cord.x - 1 < 1 || (cord.y - 1 < 1)))
+		{
+			temp = Cord(cord.x - 1, cord.y - 1);
+
+			if (Field::Instance()->isFigure(temp))
+				if (Field::Instance()->getFigure(temp)->GetTeam() == Team::Black
+					&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Pawn
+						|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::King))
+				{
+					figuresPointingToThisFigure.push_back(temp);
+					figuresChessing++;
+					pawnInQadrant[2] = true;
+				}
+		}
 	}
-	// CHECK THIS SEGMENT, change r with b, check the iterating ("x + 1")
+	
 	if (!pawnInQadrant[0])
 	{
-		for (int i = 1; ((x + i) <= 8) || ((y + i) <= 8); i++)
+		for (int i = 1; ((cord.x + i) <= 8) && ((cord.y + i) <= 8); i++)
 		{
-			if (Field::Instance()->getFigure(x + i, y + 1))
-				if (Field::Instance()->getFigure(x + i, y + 1)->GetTeam() != GetTeam())
+			temp = Cord(cord.x + i, cord.y + i);
+
+			if (Field::Instance()->isFigure(temp))
+				if (Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
 				{
-					if (Field::Instance()->getFigure(x + i, y + i)->GetFirstLetter() == 'b'
-						|| Field::Instance()->getFigure(x + i, y + i)->GetFirstLetter() == 'Q')
+					if (Field::Instance()->getFigure(temp)->GetFigureType() ==	Figures::Bishop
+						|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Quenn)
 					{
+						figuresPointingToThisFigure.push_back(temp);
 						figuresChessing++;
 						break;
 					}
+					else
+					{
+						break;
+					}
 				}
-
-			if (Field::Instance()->isFigure(x + i, y + i))
-			{
-				break;
-			}
+				else
+				{
+					break;
+				}
 		}
 	}
 
-	if (pawnInQadrant[1])
+	if (!pawnInQadrant[1])
 	{
-		for (int i = 1; ((x - i) > 0) || ((y + i) <= 8); i++)
+		for (int i = 1; ((cord.x - i) > 0) && ((cord.y + i) <= 8); i++)
 		{
-			if (Field::Instance()->isFigure(x - i, y + i))
-				if (Field::Instance()->getFigure(x - i, y + i)->GetTeam() != GetTeam())
+			temp = Cord(cord.x - i, cord.y + i);
+
+			if (Field::Instance()->isFigure(temp))
+				if (Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
 				{
-					if (Field::Instance()->getFigure(x - i, y + i)->GetFirstLetter() == 'b'
-						|| Field::Instance()->getFigure(x - i, y + i)->GetFirstLetter() == 'Q')
+					if (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Bishop
+						|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Quenn)
 					{
+						figuresPointingToThisFigure.push_back(temp);
 						figuresChessing++;
 						break;
 					}
+					else
+					{
+						break;
+					}
 				}
-
-			if (Field::Instance()->isFigure(x - i, y + i))
-			{
-				break;
-			}
+				else
+				{
+					break;
+				}
 		}
 	}
 
-	if (pawnInQadrant[2])
+	if (!pawnInQadrant[2])
 	{
-		for (int i = 1; ((x - i) > 0) || ((y - i) > 0); i++)
+		for (int i = 1; ((cord.x - i) > 0) && ((cord.y - i) > 0); i++)
 		{
-			if (Field::Instance()->isFigure(x - i, y - 1))
-				if (Field::Instance()->getFigure(x - i, y - 1)->GetTeam() != GetTeam())
+			temp = Cord(cord.x - i, cord.y - i);
+
+			if (Field::Instance()->isFigure(temp))
+				if (Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
 				{
-					if (Field::Instance()->getFigure(x - i, y - i)->GetFirstLetter() == 'b'
-						|| Field::Instance()->getFigure(x - i, y - i)->GetFirstLetter() == 'Q')
+					if (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Bishop
+						|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Quenn)
 					{
+						figuresPointingToThisFigure.push_back(temp);
 						figuresChessing++;
 						break;
 					}
+					else
+					{
+						break;
+					}
 				}
-
-			if (Field::Instance()->isFigure(x - i, y - i))
-			{
-				break;
-			}
+				else
+				{
+					break;
+				}
 		}
 	}
 
-	if (pawnInQadrant[3])
+	if (!pawnInQadrant[3])
 	{
-		for (int i = 1; ((x + i) <= 8) || ((y - i) > 0); i++)
+		for (int i = 1; ((cord.x + i) <= 8) && ((cord.y - i) > 0); i++)
 		{
-			if (Field::Instance()->isFigure(x + i, y - 1))
-				if (Field::Instance()->getFigure(x + i, y - 1)->GetTeam() != GetTeam())
+			temp = Cord(cord.x + i, cord.y - i);
+
+			if (Field::Instance()->isFigure(temp))
+				if (Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
 				{
-					if (Field::Instance()->getFigure(x + i, y - i)->GetFirstLetter() == 'b'
-						|| Field::Instance()->getFigure(x + i, y - i)->GetFirstLetter() == 'Q')
+					if (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Bishop
+						|| Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Quenn)
 					{
+						figuresPointingToThisFigure.push_back(temp);
 						figuresChessing++;
 						break;
 					}
+					else
+					{
+						break;
+					}
 				}
-
-			if (Field::Instance()->isFigure(x + i, y - i))
-			{
-				break;
-			}
+				else
+				{
+					break;
+				}
 		}
 	}
 
 	return figuresChessing;
 }
 
-int Figure::KnightMove(int x, int y)
+int Figure::KnightMove(const Cord& cord)
 {
 	/*
 	x + 2, y - 1
@@ -305,75 +396,132 @@ int Figure::KnightMove(int x, int y)
 	*/
 
 	int figuresChessing = 0;
-		
-	if (Field::Instance()->isFigure(x + 2, y - 1))
-		if ((Field::Instance()->getFigure(x + 2, y - 1)->GetTeam() != GetTeam())
-			&& (Field::Instance()->getFigure(x + 2, y - 1)->GetFirstLetter() == 'k'))
+	Cord temp;
+
+	if (cord.x > 0 && cord.x + 2 <= 8 && cord.y <= 8)
+	{
+		if (cord.y - 1 > 0)
 		{
-			figuresChessing++;
+			temp = Cord(cord.x + 2, cord.y - 1);
+
+			if (Field::Instance()->isFigure(temp))
+				if ((Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
+					&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Knight))
+				{
+					figuresPointingToThisFigure.push_back(temp);
+					figuresChessing++;
+				}
 		}
 
-	if (Field::Instance()->isFigure(x + 2, y + 1))
-		if ((Field::Instance()->getFigure(x + 2, y + 1)->GetTeam() != GetTeam())
-			&& (Field::Instance()->getFigure(x + 2, y + 1)->GetFirstLetter() == 'k'))
+		if (cord.y + 1 <= 8)
 		{
-			figuresChessing++;
-		}
+			temp = Cord(cord.x + 2, cord.y + 1);
 
-	if (Field::Instance()->isFigure(x - 2, y - 1))
-		if ((Field::Instance()->getFigure(x - 2, y - 1)->GetTeam() != GetTeam())
-			&& (Field::Instance()->getFigure(x - 2, y - 1)->GetFirstLetter() == 'k'))
-		{
-			figuresChessing++;
+			if (Field::Instance()->isFigure(temp))
+				if ((Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
+					&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Knight))
+				{
+					figuresPointingToThisFigure.push_back(temp);
+					figuresChessing++;
+				}
 		}
+	}
 
-	if (Field::Instance()->isFigure(x - 2, y + 1))
-		if ((Field::Instance()->getFigure(x - 2, y + 1)->GetTeam() != GetTeam())
-			&& (Field::Instance()->getFigure(x - 2, y + 1)->GetFirstLetter() == 'k'))
-		{
-			figuresChessing++;
-		}
+	if (cord.x - 2 >= 1 && ((cord.y - 1) > 0) && cord.y <= 8)
+	{
+		temp = Cord(cord.x - 2, cord.y - 1);
 
-	if (Field::Instance()->isFigure(x + 1, y + 2))
-		if ((Field::Instance()->getFigure(x + 1, y + 2)->GetTeam() != GetTeam())
-			&& (Field::Instance()->getFigure(x + 1, y + 2)->GetFirstLetter() == 'k'))
-		{
-			figuresChessing++;
-		}
-	if (Field::Instance()->isFigure(x + 1, y - 2))
-		if ((Field::Instance()->getFigure(x + 1, y - 2)->GetTeam() != GetTeam())
-			&& (Field::Instance()->getFigure(x + 1, y - 2)->GetFirstLetter() == 'k'))
-		{
-			figuresChessing++;
-		}
+		if (Field::Instance()->isFigure(temp))
+			if ((Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
+				&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Knight))
+			{
+				figuresPointingToThisFigure.push_back(temp);
+				figuresChessing++;
+			}
 
-	if (Field::Instance()->isFigure(x - 1, y + 2))
-		if ((Field::Instance()->getFigure(x - 1, y + 2)->GetTeam() != GetTeam())
-			&& (Field::Instance()->getFigure(x - 1, y + 2)->GetFirstLetter() == 'k'))
-		{
-			figuresChessing++;
-		}
+		temp = Cord(cord.x - 2, cord.y + 1);
 
-	if (Field::Instance()->isFigure(x - 1, y - 2))
-		if ((Field::Instance()->getFigure(x - 1, y - 2)->GetTeam() != GetTeam())
-			&& (Field::Instance()->getFigure(x - 1, y - 2)->GetFirstLetter() == 'k'))
-		{
-			figuresChessing++;
-		}
+		if (Field::Instance()->isFigure(temp))
+			if ((Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
+				&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Knight))
+			{
+				figuresPointingToThisFigure.push_back(temp);
+				figuresChessing++;
+			}
+	}
+
+	if (((cord.x - 1) > 0) && cord.x <= 8 && cord.y + 2 <= 8)
+	{
+		temp = Cord(cord.x + 1, cord.y + 2);
+
+		if (Field::Instance()->isFigure(temp))
+			if ((Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
+				&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Knight))
+			{
+				figuresPointingToThisFigure.push_back(temp);
+				figuresChessing++;
+			}
+
+		temp = Cord(cord.x - 1, cord.y + 2);
+
+		if (Field::Instance()->isFigure(temp))
+			if ((Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
+				&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Knight))
+			{
+				figuresPointingToThisFigure.push_back(temp);
+				figuresChessing++;
+			}
+	}
+
+	if (((cord.x - 1) > 0) && cord.x <= 8 && cord.y - 2 > 0)
+	{
+		temp = Cord(cord.x + 1, cord.y - 2);
+
+		if (Field::Instance()->isFigure(temp))
+			if ((Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
+				&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Knight))
+			{
+				figuresPointingToThisFigure.push_back(temp);
+				figuresChessing++;
+			}
+
+		temp = Cord(cord.x - 1, cord.y - 2);
+
+		if (Field::Instance()->isFigure(temp))
+			if ((Field::Instance()->getFigure(temp)->GetTeam() != GetTeam())
+				&& (Field::Instance()->getFigure(temp)->GetFigureType() == Figures::Knight))
+			{
+				figuresPointingToThisFigure.push_back(temp);
+				figuresChessing++;
+			}
+	}
 
 	return figuresChessing;
 }
 
-int Figure::CanBeReached(int x, int y)
+int Figure::CanBeReached(const Cord& cord)
 {
-	/*if (VerticalAndHorizontal(x, y) || Diagonals(x, y) || KnightMove(x, y))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}*/
+	return VerticalAndHorizontal(cord) + Diagonals(cord) + KnightMove(cord);
+}
 
-	return VerticalAndHorizontal(x, y) + Diagonals(x, y) + KnightMove(x, y);
+void Figure::ClearPointingFigures()
+{
+	figuresPointingToThisFigure.clear();
+}
+
+std::list<Cord>* Figure::getFiguresPointingToThisFigure()
+{
+	return &figuresPointingToThisFigure;
+}
+
+Figure * Figure::kingInFiguresPointingToThisFigure()
+{
+	for (auto it : figuresPointingToThisFigure)
+	{
+		if (Field::Instance()->getFigure(it)->GetFigureType() == Figures::King)
+		{
+			return Field::Instance()->getFigure(it);
+		}
+	}
+	return nullptr;
 }

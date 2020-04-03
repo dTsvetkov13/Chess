@@ -1,21 +1,20 @@
 #pragma once
 #include "Figure.h"
+#include <list>
 
 class King : public Figure
 {
 private:
-	int figuresChessing = 0;
-	//bool isMoved = false;
-protected:
-	bool CanReach(int fromX, int fromY, int toX, int toY) override;
-	bool FigureOnTheWay(int fromX, int fromY, int toX, int toY) override;
+	bool CanReach(const Cord& from, const Cord& to) override;
+	bool FigureOnTheWay(const Cord& from, const Cord& to) override;
+	bool isFreeSpace(const Cord& cord, bool &canFigureFreeSpace);
 public:
 	King();
+	King(Team);
 	~King();
+	std::string GetFigureSymbol() override;
 	int GetFiguresChessing();
-	bool CanBeUnchessed(int x, int y);
-	bool isCheckmated(int x, int y);
-	bool IsInChess(int x, int y);
-	//bool IsMoved();
+	bool isCheckmated(const Cord&);
+	bool IsInChess(const Cord&);
 };
 

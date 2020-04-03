@@ -3,27 +3,45 @@
 
 Pawn::Pawn()
 {
-	SetFirstLetter('p');
+	SetFigureType(Figures::Pawn);
 }
 
+Pawn::Pawn(Team team)
+{
+	SetFigureType(Figures::Pawn);
+	SetTeam(team);
+}
 
 Pawn::~Pawn()
 {
+	
 }
 
-bool Pawn::CanReach(int fromX, int fromY, int toX, int toY)
+std::string Pawn::GetFigureSymbol()
 {
-	if (Field::Instance()->getFigure(fromX, fromY)->GetTeam() == 'w')
+	if (GetTeam() == Team::Black)
 	{
-		if ((fromY - toY == 2) && !IsMoved())
+		return "bp";
+	}
+	else
+	{
+		return "wp";
+	}
+}
+
+bool Pawn::CanReach(const Cord& from, const Cord& to)
+{
+	if (Field::Instance()->getFigure(from)->GetTeam() == Team::White)
+	{
+		if ((from.y - to.y == 2) && !IsMoved())
 		{
 			return true;
 		}
-		else if (((fromY - toY) == 1) && std::abs(fromX - toX) == 1)
+		else if (((from.y - to.y) == 1) && std::abs(from.x - to.x) == 1)
 		{
 			return true;
 		}
-		else if (((fromY - toY) == 1) && std::abs(fromX - toX) == 0)
+		else if (((from.y - to.y) == 1) && std::abs(from.x - to.x) == 0)
 		{
 			return true;
 		}
@@ -34,15 +52,15 @@ bool Pawn::CanReach(int fromX, int fromY, int toX, int toY)
 	}
 	else
 	{
-		if ((toY - fromY == 2) && !IsMoved())
+		if ((to.y - from.y == 2) && !IsMoved())
 		{
 			return true;
 		}
-		else if (((toY - fromY) == 1) && std::abs(fromX - toX) == 1)
+		else if (((to.y - from.y) == 1) && std::abs(from.x - to.x) == 1)
 		{
 			return true;
 		}
-		else if (((toY - fromY) == 1) && std::abs(fromX - toX) == 0)
+		else if (((to.y - from.y) == 1) && std::abs(from.x - to.x) == 0)
 		{
 			return true;
 		}
@@ -53,34 +71,32 @@ bool Pawn::CanReach(int fromX, int fromY, int toX, int toY)
 	}
 }
 
-bool Pawn::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
+bool Pawn::FigureOnTheWay(const Cord& from, const Cord& to)
 {
-	if ((std::abs(toY - fromY) == 1) && std::abs(fromX - toX) == 1)
+	if ((std::abs(to.y - from.y) == 1) && std::abs(from.x - to.x) == 1)
 	{
-		if (Field::Instance()->isFigure(toX, toY))
+		if (Field::Instance()->isFigure(to))
 		{
-			if (Field::Instance()->getFigure(toX, toY)->GetTeam()
-				== GetTeam())//!= Field::Instance()->getFigure(fromX, fromY)->GetTeam())
+			if (Field::Instance()->getFigure(to)->GetTeam()
+				== GetTeam())
 			{
 				return true;
 			}
 			else
 			{
-	//			isMoved = true;
 				return false;
 			}
 		}
 		else
 		{
-			if ((Field::Instance()->isFigure(toX, fromY))
-				&& (anPasan.first == toX) 
-				&& (anPasan.second == fromY))
+			if ((Field::Instance()->isFigure(Cord(to.x, from.y)))
+				&& (anPasan.first == to.x) 
+				&& (anPasan.second == from.y))
 			{
-				Field::Instance()->SetToNullPointer(anPasan.first, anPasan.second);
+				Field::Instance()->SetToNullPointer(Cord(anPasan.first, anPasan.second));
 				anPasan.first = -1;
 				anPasan.second = -1;
-			
-//				isMoved = true;
+
 				return false;
 			}
 			else
@@ -91,40 +107,38 @@ bool Pawn::FigureOnTheWay(int fromX, int fromY, int toX, int toY)
 	}
 	else
 	{
-		if (Field::Instance()->getFigure(fromX, fromY)->GetTeam() == 'w')
+		if (Field::Instance()->getFigure(from)->GetTeam() == Team::White)
 		{
-			for (int i = 1; i <= (fromY - toY); i++)
+			for (int i = 1; i <= (from.y - to.y); i++)
 			{
-				std::cout << "toY + i = " << fromY - i << std::endl;
-				if (Field::Instance()->isFigure(fromX, fromY - i))
+				if (Field::Instance()->isFigure(Cord(from.x, from.y - i)))
 				{
 					return true;
 				}
 				if (i == 2)
 				{
-					anPasan.first = toX;
-					anPasan.second = toY;
+					anPasan.first = to.x;
+					anPasan.second = to.y;
 				}
 			}
-//			isMoved = true;
+
 			return false;
 		}
 		else
 		{
-			for (int i = 1; i <= (toY - fromY); i++)
+			for (int i = 1; i <= (to.y - from.y); i++)
 			{
-				std::cout << "toY + i = " << fromY + i << std::endl;
-				if (Field::Instance()->isFigure(fromX, fromY + i))
+				if (Field::Instance()->isFigure(Cord(from.x, from.y + i)))
 				{
 					return true;
 				}
 				if (i == 2)
 				{
-					anPasan.first = toX;
-					anPasan.second = toY;
+					anPasan.first = to.x;
+					anPasan.second = to.y;
 				}
 			}
-//			isMoved = true;
+
 			return false;
 		}
 		return true;
