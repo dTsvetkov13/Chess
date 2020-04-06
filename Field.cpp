@@ -4,7 +4,7 @@
 #include "Bishop.h"
 #include "King.h"
 #include "Knight.h"
-#include "Quenn.h"
+#include "Queen.h"
 #include "Figure.h"
 #include <ctype.h>
 #include <fstream>
@@ -20,9 +20,9 @@ Field::Field()
 	std::unique_ptr<Figure> rook1(new Rook(team));
 	std::unique_ptr<Figure> knight1(new Knight(team));
 	std::unique_ptr<Figure> bishop1(new Bishop(team));
-	std::unique_ptr<Figure> quenn(new Quenn(team));
+	std::unique_ptr<Figure> quenn(new Queen(team));
 	std::unique_ptr<Figure> king(new King(team));
-
+	
 	m_field[0][0] = std::move(rook1);
 	m_field[0][7] = std::move(rook);
 	m_field[0][1] = std::move(knight1);
@@ -54,7 +54,7 @@ Field::Field()
 	std::unique_ptr<Figure> whiteRook1(new Rook(team));
 	std::unique_ptr<Figure> whiteKnight1(new Knight(team));
 	std::unique_ptr<Figure> whiteBishop1(new Bishop(team));
-	std::unique_ptr<Figure> whiteQuenn(new Quenn());
+	std::unique_ptr<Figure> whiteQuenn(new Queen());
 	std::unique_ptr<Figure> whiteKing(new King(team));
 
 	m_field[7][0] = std::move(whiteRook1);
@@ -213,7 +213,7 @@ void Field::setFigure(const Cord& cord, Figures &figureType, Team team)
 		}
 		case(Figures::Quenn):
 		{
-			m_field[cord.y - 1][cord.x - 1].reset(new Quenn(Team::White));
+			m_field[cord.y - 1][cord.x - 1].reset(new Queen(Team::White));
 			break;
 		}
 		case(Figures::Rook):
@@ -318,4 +318,57 @@ bool Field::isCastlingMove(const Cord& first, const Cord& second)
 	}
 
 	else return false;
+}
+
+void Field::pawnSwapWithAnotherFigure(const Cord &cord)
+{
+	std::string input;
+	bool inProgress = true;
+
+	do
+	{
+		std::cout << "What figure do you want to get between Queen, Rook, Bishop and Knight? Enter the first character: " << std::endl;
+		std::cin >> input;
+
+		if (input.length() > 1)
+		{
+			std::cout << "Wrong input! Enter again!" << std::endl;
+			continue;
+		}
+
+		switch (tolower(input[0]))
+		{
+		case('q') :
+		{
+			Team team = m_field[cord.y - 1][cord.x - 1].get()->GetTeam();
+			m_field[cord.y - 1][cord.x - 1].reset(new Queen(team));
+			inProgress = false;
+			break;
+		}
+		case('b') :
+		{
+			Team team = m_field[cord.y - 1][cord.x - 1].get()->GetTeam();
+			m_field[cord.y - 1][cord.x - 1].reset(new Bishop(team));
+			inProgress = false;
+			break;
+		}
+		case('r'):
+		{
+			Team team = m_field[cord.y - 1][cord.x - 1].get()->GetTeam();
+			m_field[cord.y - 1][cord.x - 1].reset(new Rook(team));
+			inProgress = false;
+			break;
+		}
+		case('k'):
+		{
+			Team team = m_field[cord.y - 1][cord.x - 1].get()->GetTeam();
+			m_field[cord.y - 1][cord.x - 1].reset(new Knight(team));
+			inProgress = false;
+			break;
+		}
+		default:
+			std::cout << "Wrong input! Enter again!" << std::endl;
+			continue;
+		}
+	} while (inProgress);
 }

@@ -1,6 +1,6 @@
 #include "Figure.h"
 #include "Field.h"
-#include "Quenn.h"
+#include "Queen.h"
 #include "King.h"
 
 Figure::Figure()

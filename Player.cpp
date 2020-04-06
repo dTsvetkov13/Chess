@@ -7,7 +7,7 @@
 #include "Rook.h"
 #include "Bishop.h"
 #include "Knight.h"
-#include "Quenn.h"
+#include "Queen.h"
 
 Player::Player()
 {
@@ -213,6 +213,14 @@ bool Player::Turn()
 
 			kingIsInChess = true;
 			return false;
+		}
+
+		if (Field::Instance()->getFigure(to)->GetFigureType() == Figures::Pawn)
+		{
+			if (to.y == 1 || to.y == 8)
+			{
+				Field::Instance()->pawnSwapWithAnotherFigure(to);
+			}
 		}
 
 		kingIsInChess = false;

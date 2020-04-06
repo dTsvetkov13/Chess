@@ -14,7 +14,6 @@ Pawn::Pawn(Team team)
 
 Pawn::~Pawn()
 {
-	
 }
 
 std::string Pawn::GetFigureSymbol()

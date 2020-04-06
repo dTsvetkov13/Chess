@@ -37,5 +37,6 @@ public:
 	King* getKing(const Cord& cord);
 	bool CastlingMove(const Cord& king, const Cord& rook, bool &left);
 	bool isCastlingMove(const Cord& king, const Cord& rook);
+	void pawnSwapWithAnotherFigure(const Cord &cord);
 };
 
