@@ -2,16 +2,17 @@
 
 #include <ctype.h>
 #include <iostream>
-#include "Field.h"
 #include "Figure.h"
 
-using namespace std;
-
-class Rook : public Figure
+class Rook : public virtual Figure
 {
+protected:
+	bool CanReach(const Cord& from, const Cord& to) override;
+	bool FigureOnTheWay(const Cord& from, const Cord& to) override;
 public:
 	Rook();
+	Rook(Team);
 	~Rook();
-	bool CanReach(char*, char*);
+	std::string GetFigureSymbol() override;
 };
 
