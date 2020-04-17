@@ -40,6 +40,7 @@ int main()
 
 	while (true)
 	{
+		system("cls");
 		anPasanInCurrentTurn = false;
 		int currentAnPasanX = anPasan.first;
 		int currentAnPasanY = anPasan.second;
