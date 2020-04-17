@@ -54,7 +54,7 @@ Field::Field()
 	std::unique_ptr<Figure> whiteRook1(new Rook(team));
 	std::unique_ptr<Figure> whiteKnight1(new Knight(team));
 	std::unique_ptr<Figure> whiteBishop1(new Bishop(team));
-	std::unique_ptr<Figure> whiteQuenn(new Queen());
+	std::unique_ptr<Figure> whiteQuenn(new Queen(team));
 	std::unique_ptr<Figure> whiteKing(new King(team));
 
 	m_field[7][0] = std::move(whiteRook1);
