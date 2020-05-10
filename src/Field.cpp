@@ -75,6 +75,7 @@ Field::Field()
 
 Field::~Field()
 {
+	delete instance;
 }
 
 Field *Field::instance = nullptr;
@@ -82,14 +83,8 @@ Field *Field::instance = nullptr;
 Field* Field::Instance()
 {
 	if (instance == nullptr)
-		instance = new Field;
+		instance = new Field();
 	return instance;
-}
-
-const Field& Field::operator=(Field const& copy)
-{
-	*instance = copy;
-	return *instance;
 }
 
 Figure* Field::getFigure(const Cord& cord)
